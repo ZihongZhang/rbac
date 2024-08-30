@@ -1,0 +1,18 @@
+# 忽略所有 bin 和 obj 文件夹
+bin/
+obj/
+
+# 忽略 Visual Studio 临时文件和用户设置文件
+.vs/
+.vscode/
+*.user
+*.suo
+
+# 忽略所有 .log 文件
+*.log
+
+# 忽略 NuGet Packages 文件夹
+packages/
+
+# 忽略创建的sqlite
+*.db
