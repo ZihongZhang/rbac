@@ -8,27 +8,28 @@ public class RolePermission
     /// <summary>
     /// 主键
     /// </summary>
-    public Guid PermissionRoleId { get; set; }
+    [SugarColumn(IsPrimaryKey = true)]
+    public string PermissionRoleId { get; set; } =Guid.NewGuid().ToString();
     /// <summary>
     /// 用户Id
     /// </summary>
-    public Guid PermissionId { get; set; }
+    public string PermissionId { get; set; }
     /// <summary>
     /// 角色Id
     /// </summary>
-    public Guid RoleId { get; set; }
+    public string RoleId { get; set; }
     /// <summary>
     /// 创建时间
     /// </summary>
-    public Guid CreateTime { get; set; }
+    public DateTime CreateTime { get; set; }=DateTime.Now;
     /// <summary>
     /// 创建者Id
     /// </summary>
-    public Guid CreateUser { get; set; }
+    public DateTime CreateUser { get; set; }=DateTime.Now;
     /// <summary>
     /// 租户Id
     /// </summary>
-    public Guid TenantId { get; set; }
+    public string TenantId { get; set; }
     /// <summary>
     /// 是否软删除
     /// </summary>

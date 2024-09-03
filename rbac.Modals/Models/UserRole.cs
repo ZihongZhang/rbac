@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 using rbac.Modals.AggregateRoots;
 using SqlSugar;
 
@@ -9,30 +10,35 @@ public class UserRole : ISoftDeletable
     /// <summary>
     /// 主键
     /// </summary>
-    public Guid UserRoleId { get; set; }
+    [SugarColumn(IsPrimaryKey = true)]
+    public  string UserRoleId { get; set; }=Guid.NewGuid().ToString();
     /// <summary>
     /// 用户Id
     /// </summary>
-    public Guid UserId { get; set; }
+    public  string UserId { get; set; }
     /// <summary>
     /// 角色Id
     /// </summary>
-    public Guid RoleId { get; set; }
+    public  string RoleId { get; set; }
     /// <summary>
     /// 创建时间
     /// </summary>
-    public Guid CreateTime { get; set; }
+    public  DateTime CreateTime { get; set; }=DateTime.Now;
     /// <summary>
     /// 创建者Id
     /// </summary>
-    public Guid CreateUser { get; set; }
+    public  string CreateUser { get; set; }
     /// <summary>
     /// 租户Id
     /// </summary>
-    public Guid TenantId { get; set; }
+    public  string TenantId { get; set; }
     /// <summary>
     /// 是否软删除
     /// </summary>
     public bool IsDeleted { get; set; }
+    /// <summary>
+    /// 更新时间
+    /// </summary>
+    public DateTime UpdateTime { get; set; }=DateTime.Now;
 
 }

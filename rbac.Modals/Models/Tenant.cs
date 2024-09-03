@@ -9,7 +9,16 @@ public class Tenant : ISoftDeletable
     /// <summary>
     /// 租户Id
     /// </summary>
-    public Guid TenantId { get; set; } =  Guid.NewGuid();
+    [SugarColumn(IsPrimaryKey = true)]
+    public string TenantId { get; set; } =  Guid.NewGuid().ToString();
+    /// <summary>
+    /// 租户名
+    /// </summary>
+    public string TenantName { get; set; }
+    /// <summary>
+    /// 是否被禁用
+    /// </summary>
+    public bool IsEnabled { get; set; }=true;
     /// <summary>
     /// 软删除
     /// </summary>
@@ -17,10 +26,14 @@ public class Tenant : ISoftDeletable
     /// <summary>
     /// 创建时间
     /// </summary>
-    public DateTime CreateTime { get; set; }
+    public DateTime CreateTime { get; set; }=DateTime.Now;
     /// <summary>
     /// 创建人
     /// </summary>
-    public Guid CreateUser { get; set; }
+    public  string CreateUser { get; set; }
+    /// <summary>
+    /// 更新时间 
+    /// </summary>
+    public DateTime UpdateTime { get; set; }=DateTime.Now;
     
 }

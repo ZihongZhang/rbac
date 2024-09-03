@@ -11,11 +11,8 @@ public class Role : ISoftDeletable
     /// 角色Id
     /// </summary>
     [SugarColumn(IsPrimaryKey = true)]
-    public Guid RoleId { get; set; } = Guid.NewGuid();
-    /// <summary>
-    /// 租户Id
-    /// </summary>
-    public Guid TenentId { get; set; }
+    public string RoleId { get; set; } = Guid.NewGuid().ToString();
+
     /// <summary>
     /// 角色名称
     /// </summary>
@@ -27,7 +24,7 @@ public class Role : ISoftDeletable
     /// <summary>
     /// 租户id
     /// </summary>
-    public Guid TenantId { get; set; }
+    public  string TenantId { get; set; }
     /// <summary>
     /// 是否软删除
     /// </summary>
@@ -35,11 +32,11 @@ public class Role : ISoftDeletable
     /// <summary>
     /// 更新时间 
     /// </summary>
-    public DateTime UpdateTime { get; set; }
+    public DateTime UpdateTime { get; set; }=DateTime.Now;
     /// <summary>
     /// 父角色ID
     /// </summary>
-    public Guid ParentRoleId { get; set; } 
+    public string? ParentRoleId { get; set; } 
     /// <summary>
     /// 与user导航属性
     /// </summary>
@@ -51,4 +48,8 @@ public class Role : ISoftDeletable
 
     [Navigate(typeof(RolePermission),nameof(RolePermission.RoleId),nameof(RolePermission.PermissionId))]
     public List<Permission>? PermissionList { get; set; }
+    /// <summary>
+    /// 创建时间
+    /// </summary>
+    public DateTime CreateTime { get; set; }=DateTime.Now;
 }
