@@ -1,11 +1,11 @@
 using System;
-
+using rbac.Modals.Enum;
 using SqlSugar;
 
 namespace rbac.Modals.Models;
 
 [SugarTable("sys_roles")]
-public class Role : EntityBase,ITenantIdFilter
+public class Role : ModelBase
 {
     /// <summary>
     /// 角色名称
@@ -18,10 +18,10 @@ public class Role : EntityBase,ITenantIdFilter
     public string? ParentRoleId { get; set; }
 
     /// <summary>
-    /// 租户Id
+    /// 状态
     /// </summary>
-    [SugarColumn(ColumnDescription ="租户Id")]
-    public string? TenantId { get; set ; }
+    [SugarColumn(ColumnDescription = "状态")]
+    public StatusEnum Status { get; set; } = StatusEnum.Enable;
 
     /// <summary>
     /// 与user导航属性
@@ -30,8 +30,8 @@ public class Role : EntityBase,ITenantIdFilter
     public List<User>? RoleList { get; set; }
 
     /// <summary>
-    /// 与permission导航属性
+    /// 与Menu的导航属性
     /// </summary>
-    [Navigate(typeof(RolePermission),nameof(RolePermission.RoleId),nameof(RolePermission.PermissionId))]
-    public List<Permission>? PermissionList { get; set; }
+    [Navigate(typeof(RoleMenu),nameof(RoleMenu.RoleId),nameof(RoleMenu.MenuId))]
+    public List<Menu>? MenuList{ get; set; }
 }

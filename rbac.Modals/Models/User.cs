@@ -1,16 +1,12 @@
 using System;
+using System.ComponentModel.DataAnnotations;
+using rbac.Modals.Enum;
 using SqlSugar;
 
 namespace rbac.Modals.Models;
 [SugarTable("sys_users")]
-public class User : EntityBase,ITenantIdFilter
+public class User : ModelBase,ITenantIdFilter
 {
-    /// <summary>
-    /// 用户Id
-    /// </summary>
-    [SugarColumn(IsPrimaryKey = true)]
-    public string UserId { get; set; } = Guid.NewGuid().ToString();
-
     /// <summary>
     /// 登录用户名
     /// </summary>
@@ -31,6 +27,19 @@ public class User : EntityBase,ITenantIdFilter
     /// </summary>
     [SugarColumn(IsNullable = true)]//可以为NULL
     public string Mobile { get; set; }
+
+    /// <summary>
+    /// 状态
+    /// </summary>
+    [SugarColumn(ColumnDescription = "状态")]
+    public StatusEnum Status { get; set; } = StatusEnum.Enable;
+
+    /// <summary>
+    /// 备注
+    /// </summary>
+    [SugarColumn(ColumnDescription = "备注", Length = 256,IsNullable =true)]
+    [MaxLength(256)]
+    public string? Remark { get; set; }
 
     /// <summary>
     /// 租户Id
