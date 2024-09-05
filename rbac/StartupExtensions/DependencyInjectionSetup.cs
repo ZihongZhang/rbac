@@ -1,12 +1,13 @@
 using System;
+using Autofac.Core;
 using rbac.Infra;
 
 namespace rbac.StartupExtensions;
 
 public static class DependencyInjectionSetup
 {
-    public static void AddDependencySetup(this WebApplication builder)
+    public static void AddDependencySetup( this IServiceCollection  service)
     {
-        var app=new AppSetting(builder.Configuration);
+        // service.AddAuthentication
     }
 }
