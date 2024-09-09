@@ -13,7 +13,7 @@ public class User : ModelBase,ITenantIdFilter
     public  string Username { get; set; }
 
     /// <summary>
-    /// 登录密码
+    /// 登录密码 加盐
     /// </summary>
     public  string Password { get; set; }  // 注意：实际应用中应对密码进行哈希处理
 

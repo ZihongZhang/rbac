@@ -30,38 +30,20 @@ namespace rbac
             });
 
             builder.Services.AddControllers();
+            
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen(c =>
-            {
-                var jwtSecurityScheme = new OpenApiSecurityScheme
-                {
-                    BearerFormat = "JWT",
-                    Name = "Authorization",
-                    In = ParameterLocation.Header,
-                    Type = SecuritySchemeType.ApiKey,
-                    Scheme = JwtBearerDefaults.AuthenticationScheme,
-                    Description = "Put Bearer+your token in the box below",
-                    Reference = new OpenApiReference
-                    {
-                        Id = JwtBearerDefaults.AuthenticationScheme,
-                        Type = ReferenceType.SecurityScheme
-                    }
-                };
-                c.AddSecurityDefinition(jwtSecurityScheme.Reference.Id, jwtSecurityScheme);
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
-                {
-                    jwtSecurityScheme,Array.Empty<string>()
-                }
-                });
-            });
 
-             // //将配置文件装到静态类中，从而在静态类中可以获取静态文件 尚未完成
-             builder.Services.AddSingleton(new AppSetting(builder.Configuration));
+            //设置Token格式
+            builder.Services.AddAuthenticationSetup();
+
+            //设置swagger权限认证
+            builder.Services.AddSwaggerGenSetup();
+
+            //将配置文件装到静态类中，从而在静态类中可以获取静态文件 
+            builder.Services.AddSingleton(new AppSetting(builder.Configuration));
 
             //添加sqlsugar设置并创建数据库
-
             builder.Services.AddSqlsugarSetup();
 
             var app = builder.Build();

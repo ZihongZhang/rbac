@@ -13,7 +13,8 @@ namespace rbac.StartupExtensions
         public static void AddSqlsugarSetup(this IServiceCollection services)
         {
             if (services == null) throw new ArgumentNullException(nameof(services));
-
+            
+            #region 设置数据库连接
             //添加数据库连接
             SqlSugarClient db = new SqlSugarClient(new ConnectionConfig()
             {
@@ -53,9 +54,12 @@ namespace rbac.StartupExtensions
                 //默认查询只会查询没被软删除的内容
                 db.QueryFilter.AddTableFilter<ISoftDeletable>(it => it.IsDeleted == false);
             });
+            #endregion 
+
+            #region 初始化表并加入种子数据
             db.DbMaintenance.CreateDatabase(Directory.GetCurrentDirectory());
             db.CodeFirst.SetStringDefaultLength(200).InitTables(typeof(Menu), typeof(Role), typeof(RoleMenu), typeof(Tenant), typeof(User), typeof(UserRole));
-
+            
             //提前定义来然后面可以拿到数据
             List<Menu>? Menus = null;
             List<Role>? roles = null;
@@ -151,7 +155,13 @@ namespace rbac.StartupExtensions
                 };
                 db.Insertable(UserRoles).ExecuteCommand();
             }
-            
+            #endregion
+
+            #region sqlsugar依赖注入
+            //将sqlsugerclient注入
+            services.AddTransient<ISqlSugarClient>(o=>
+            {return db;});
+            #endregion
         }
     }
 }
