@@ -5,6 +5,7 @@ using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
 using rbac.Infra;
+using rbac.Repository.Base;
 using rbac.StartupExtensions;
 
 namespace rbac
