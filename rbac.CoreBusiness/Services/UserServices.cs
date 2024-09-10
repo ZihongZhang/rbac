@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using rbac.Infra;
 using rbac.Infra.Exceptions;
+using rbac.Infra.Helper;
 using rbac.Modals.Dto;
 using rbac.Modals.Models;
 using rbac.Repository.Base;
@@ -25,16 +26,24 @@ public class UserServices
     /// </summary>
     /// <param name="loginDto"></param>
     /// <returns></returns>
-    // public string Login(LoginDto loginDto)
-    // {
-    //     string loginUser = _userRepository.GetSingle(a => a.Username == loginDto.UserName).Password;
-    //     if (string.IsNullOrWhiteSpace(loginUser)) throw new DomainException("不存在该用户");
-        
+    public async Task<string> LoginAsync(LoginDto loginDto)
+    {
+        CheckHelper.NotNull(loginDto);
+        User user = await _userRepository.GetSingleAsync(a => a.Username == loginDto.UserName);
+        if (user == null) throw new DomainException("不存在该用户");
+        if(string.Equals(user.Password,loginDto.Password))
+        {
+            return GenerateToken(user);
+        }
+        throw new DomainException("登录失败");
+        return "aa";
+    }
 
-
-        
-    // }
-
+    /// <summary>
+    /// 产生token
+    /// </summary>
+    /// <param name="user"></param>
+    /// <returns></returns>
     public string GenerateToken( User user)
     {
         var Claims = new List<Claim>
@@ -54,7 +63,5 @@ public class UserServices
             signingCredentials: creds
         );
         return new JwtSecurityTokenHandler().WriteToken(tokenOptions);
-    }
-
-    
+    }    
 }
