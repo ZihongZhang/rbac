@@ -3,12 +3,17 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using rbac.Filters;
 using rbac.Infra;
 
 namespace rbac.StartupExtensions;
 
-public static class AuthenticationSetup
+public static class BaseServiceSetup
 {
+    /// <summary>
+    /// 添加鉴权功能
+    /// </summary>
+    /// <param name="services"></param>
     public static void AddAuthenticationSetup(this IServiceCollection services)
     {
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -24,6 +29,10 @@ public static class AuthenticationSetup
             });
     }
 
+    /// <summary>
+    /// 添加swagger验证
+    /// </summary>
+    /// <param name="services"></param>
     public static void AddSwaggerGenSetup(this IServiceCollection services)
     {
         services.AddSwaggerGen(c =>
@@ -50,5 +59,17 @@ public static class AuthenticationSetup
                     }
                 });
             });
+    }
+
+    /// <summary>
+    /// 添加筛选器
+    /// </summary>
+    /// <param name="services"></param>
+    public static void AddFilterSetup(this IServiceCollection services)
+    {
+        services.AddControllers(opt =>
+        {
+            opt.Filters.Add<GlobalExceptionFilter>();
+        });
     }
 }

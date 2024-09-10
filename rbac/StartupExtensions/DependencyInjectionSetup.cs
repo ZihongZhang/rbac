@@ -9,7 +9,6 @@ public static class DependencyInjectionSetup
 {
     public static void AddDependencySetup( this IServiceCollection  service)
     {
-        // service.AddAuthentication
-        
+        // service.AddAuthentication      
     }
 }

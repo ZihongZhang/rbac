@@ -47,6 +47,9 @@ namespace rbac
             //添加sqlsugar设置并创建数据库
             builder.Services.AddSqlsugarSetup();
 
+            //添加筛选器
+            builder.Services.AddFilterSetup();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
