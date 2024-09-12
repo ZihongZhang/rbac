@@ -6,7 +6,6 @@ namespace rbac.Infra;
 
 public class AppSetting
 {
-    // TODO: 添加通过a：b来获取的方法
     public static IConfiguration Configuration { get; set; }
     static string contentPath { get; set; }
     public AppSetting(string contentPath)

@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using rbac.Filters;
 using rbac.Infra;
+using Serilog;
 
 namespace rbac.StartupExtensions;
 
@@ -70,6 +71,22 @@ public static class BaseServiceSetup
         services.AddControllers(opt =>
         {
             opt.Filters.Add<GlobalExceptionFilter>();
+            opt.Filters.Add<GlobalResultFilter>();
         });
+    }
+
+    /// <summary>
+    /// 添加serilog
+    /// </summary>
+    /// <param name="services"></param>
+    public static void AddSerilog(this IServiceCollection services)
+    {
+        services.AddLogging(
+            loggingBuilder =>
+                {
+                    loggingBuilder.ClearProviders();
+                    loggingBuilder.AddSerilog();
+                }
+        );
     }
 }

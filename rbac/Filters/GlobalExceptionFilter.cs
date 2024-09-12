@@ -8,7 +8,7 @@ namespace rbac.Filters;
 /// <summary>
 /// 全局错误拦截
 /// </summary>
-public class GlobalExceptionFilter : IExceptionFilter
+public class GlobalExceptionFilter : IAsyncExceptionFilter
 {
     private readonly IWebHostEnvironment _env;
     private readonly ILogger<GlobalExceptionFilter> _logger;
@@ -23,7 +23,7 @@ public class GlobalExceptionFilter : IExceptionFilter
     /// 处理异常
     /// </summary>
     /// <param name="context"></param>
-    public void OnException(ExceptionContext context)
+    public async Task OnExceptionAsync(ExceptionContext context)
     {
         _logger.LogError(new EventId(context.Exception.HResult),context.Exception,context.Exception.Message);
 
@@ -36,8 +36,11 @@ public class GlobalExceptionFilter : IExceptionFilter
             DefaultExceptionHandler(context);
         }
 
+        // 标记异常已处理
+        context.ExceptionHandled = true;
         
-
+        // 等待异步操作完成
+        await Task.CompletedTask;
     }
 
     private void DefaultExceptionHandler(ExceptionContext context)

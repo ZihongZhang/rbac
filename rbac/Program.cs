@@ -16,11 +16,7 @@ namespace rbac
     {
         public static void Main(string[] args)
         {
-            Log.Logger = new LoggerConfiguration()
-            .MinimumLevel.Information() // 设置最小日志级别为 Debug
-            .WriteTo.Console()
-            .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day)
-            .CreateLogger();
+            
             try
             {
                 var builder = WebApplication.CreateBuilder(args);
@@ -60,11 +56,12 @@ namespace rbac
                 builder.Services.AddFilterSetup();
 
                 //使用serilog替换原生log
-                builder.Services.AddLogging(loggingBuilder =>
-                {
-                    loggingBuilder.ClearProviders();
-                    loggingBuilder.AddSerilog();
-                });
+                Log.Logger = new LoggerConfiguration()
+                            .ReadFrom.Configuration(AppSetting.Configuration)
+                            .WriteTo.Console()
+                            .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day)
+                            .CreateLogger();
+                builder.Services.AddSerilog();
 
                 var app = builder.Build();
 
