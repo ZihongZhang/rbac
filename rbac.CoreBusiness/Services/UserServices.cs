@@ -37,7 +37,6 @@ public class UserServices : IScoped
             return GenerateToken(user);
         }
         throw new DomainException("登录失败");
-        return "aa";
     }
 
     /// <summary>

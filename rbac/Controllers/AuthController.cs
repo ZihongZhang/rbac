@@ -13,14 +13,16 @@ namespace rbac.Controllers
     {
         private readonly ISqlSugarClient _db;
         private readonly UserServices _userServices;
+        private readonly ILogger<AuthController> _logger;
 
         public Repository<User> Repository { get; }
 
-        public AuthController(ISqlSugarClient sqlSugar,Repository<User> repository,UserServices userServices)
+        public AuthController(ISqlSugarClient sqlSugar,Repository<User> repository,UserServices userServices,ILogger<AuthController> logger)
         {
             _db = sqlSugar;
             Repository = repository;
             _userServices = userServices;
+            _logger = logger;
         }
 
         /// <summary>
