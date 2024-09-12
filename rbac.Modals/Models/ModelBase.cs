@@ -19,6 +19,7 @@ public abstract class ModelBaseId
 /// 框架实体基类（根据createtime创建索引）
 /// </summary>
 [SugarIndex("index_{table}_CT", nameof(CreateTime), OrderByType.Asc)]
+[SugarIndex("index_{table}_ID", nameof(Id), OrderByType.Asc)]
 public abstract class ModelBase : ModelBaseId, ISoftDeletable
 {
     /// <summary>

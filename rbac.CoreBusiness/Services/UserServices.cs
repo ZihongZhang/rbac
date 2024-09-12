@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using rbac.Infra;
 using rbac.Infra.Exceptions;
+using rbac.Infra.FunctionalInterfaces;
 using rbac.Infra.Helper;
 using rbac.Modals.Dto;
 using rbac.Modals.Models;
@@ -12,7 +13,7 @@ using rbac.Repository.Base;
 
 namespace rbac.CoreBusiness.Services;
 
-public class UserServices
+public class UserServices : IScoped
 {
     public Repository<User> _userRepository { get; }
 
