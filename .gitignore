@@ -11,6 +11,9 @@ obj/
 # 忽略所有 .log 文件
 *.log
 
+# 忽略所有以 log- 开头并且以 .txt 结尾的文件
+log-*.txt
+
 # 忽略 NuGet Packages 文件夹
 packages/
 
