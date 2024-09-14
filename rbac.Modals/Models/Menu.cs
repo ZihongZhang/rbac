@@ -5,6 +5,7 @@ using SqlSugar;
 
 namespace rbac.Modals.Models;
 
+[SugarTable("sys_menus")]
 public class Menu : ModelBase
 {
     /// <summary>
@@ -104,5 +105,5 @@ public class Menu : ModelBase
     /// 与role导航属性
     /// </summary>
     [Navigate(typeof(UserRole),nameof(UserRole.UserId),nameof(UserRole.RoleId))]
-    public List<Role>? RoleList { get; set; }
+    public List<Role> RoleList { get; set; } = new List<Role>();
 }

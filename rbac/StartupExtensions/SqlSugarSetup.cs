@@ -71,16 +71,16 @@ namespace rbac.StartupExtensions
                 // 创建权限种子数据
                 Menus = new List<Menu>
                 {
-                    new Menu{ CreateUserId="0", Id="1310000000101", Pid=0, Title="系统管理", Path="/system", Name="system", Component="Layout", Icon="ele-Setting", Type=MenuTypeEnum.Dir, CreateTime=DateTime.Parse("2022-02-10 00:00:00") },
-                    new Menu{ CreateUserId="0", Id="1310000000111", Pid=1310000000101, Title="账号管理", Path="/system/user", Name="sysUser", Component="/system/user/index", Icon="ele-User", Type=MenuTypeEnum.Menu, CreateTime=DateTime.Parse("2022-02-10 00:00:00") },
-                    new Menu{ CreateUserId="0", Id="1310000000112", Pid=1310000000111, Title="查询", Permission="sysUser:page", Type=MenuTypeEnum.Btn, CreateTime=DateTime.Parse("2022-02-10 00:00:00") },
-                    new Menu{ CreateUserId="0", Id="1310000000113", Pid=1310000000111, Title="编辑", Permission="sysUser:update", Type=MenuTypeEnum.Btn, CreateTime=DateTime.Parse("2022-02-10 00:00:00") },
-                    new Menu{ CreateUserId="0", Id="1310000000114", Pid=1310000000111, Title="增加", Permission="sysUser:add", Type=MenuTypeEnum.Btn, CreateTime=DateTime.Parse("2022-02-10 00:00:00") },
-                    new Menu{ CreateUserId="0", Id="1310000000115", Pid=1310000000111, Title="删除", Permission="sysUser:delete", Type=MenuTypeEnum.Btn, CreateTime=DateTime.Parse("2022-02-10 00:00:00") },
-                    new Menu{ CreateUserId="0", Id="1310000000116", Pid=1310000000111, Title="详情", Permission="sysUser:detail", Type=MenuTypeEnum.Btn, CreateTime=DateTime.Parse("2022-02-10 00:00:00") },
-                    new Menu{ CreateUserId="0", Id="1310000000117", Pid=1310000000111, Title="授权角色", Permission="sysUser:grantRole", Type=MenuTypeEnum.Btn, CreateTime=DateTime.Parse("2022-02-10 00:00:00") },
-                    new Menu{ CreateUserId="0", Id="1310000000118", Pid=1310000000111, Title="重置密码", Permission="sysUser:resetPwd", Type=MenuTypeEnum.Btn, CreateTime=DateTime.Parse("2022-02-10 00:00:00") },
-                    new Menu{ CreateUserId="0", Id="1310000000119", Pid=1310000000111, Title="设置状态", Permission="sysUser:setStatus", Type=MenuTypeEnum.Btn, CreateTime=DateTime.Parse("2022-02-10 00:00:00") }       
+                    new Menu{ CreateUserId="0", Id="1310000000101", Pid=0, Title="系统管理", Path="/system", Name="system", Component="Layout", Icon="ele-Setting", Type=MenuTypeEnum.Dir },
+                    new Menu{ CreateUserId="0", Id="1310000000111", Pid=1310000000101, Title="账号管理", Path="/system/user", Name="sysUser", Component="/system/user/index", Icon="ele-User", Type=MenuTypeEnum.Menu },
+                    new Menu{ CreateUserId="0", Id="1310000000112", Pid=1310000000111, Title="查询", Permission="sysUser:page", Type=MenuTypeEnum.Btn },
+                    new Menu{ CreateUserId="0", Id="1310000000113", Pid=1310000000111, Title="编辑", Permission="sysUser:update", Type=MenuTypeEnum.Btn },
+                    new Menu{ CreateUserId="0", Id="1310000000114", Pid=1310000000111, Title="增加", Permission="sysUser:add", Type=MenuTypeEnum.Btn },
+                    new Menu{ CreateUserId="0", Id="1310000000115", Pid=1310000000111, Title="删除", Permission="sysUser:delete", Type=MenuTypeEnum.Btn },
+                    new Menu{ CreateUserId="0", Id="1310000000116", Pid=1310000000111, Title="详情", Permission="sysUser:detail", Type=MenuTypeEnum.Btn },
+                    new Menu{ CreateUserId="0", Id="1310000000117", Pid=1310000000111, Title="授权角色", Permission="sysUser:grantRole", Type=MenuTypeEnum.Btn },
+                    new Menu{ CreateUserId="0", Id="1310000000118", Pid=1310000000111, Title="重置密码", Permission="sysUser:resetPwd", Type=MenuTypeEnum.Btn },
+                    new Menu{ CreateUserId="0", Id="1310000000119", Pid=1310000000111, Title="设置状态", Permission="sysUser:setStatus", Type=MenuTypeEnum.Btn }       
                 };
                 db.Insertable(Menus).ExecuteCommand();
             }
@@ -89,7 +89,7 @@ namespace rbac.StartupExtensions
                 // 创建权限种子数据
                 var Tenants = new List<Tenant>
                 {
-                    new Tenant { Id="0",TenantName = "FirstSuperAdminTenant", TenantType=TenantTypeEnum.Id, IsDeleted = false, UpdateTime = DateTime.Now,CreateUser ="systemDesigner",CreateUserId="0" }     
+                    new Tenant { Id="0", TenantName = "FirstSuperAdminTenant", TenantType=TenantTypeEnum.Id, IsDeleted = false, UpdateTime = DateTime.Now,CreateUser ="systemDesigner",CreateUserId="0" }     
                 };
                 db.Insertable(Tenants).ExecuteCommand();
             }
@@ -99,7 +99,8 @@ namespace rbac.StartupExtensions
                 // 创建角色种子数据
                 roles = new List<Role>
                 {
-                    new Role { Id=Guid.NewGuid().ToString(),RoleName = "Administrator", ParentRoleId = "0",CreateUserId="0" }
+                    new Role { Id = "1", RoleName = "SuperAdministrator", ParentRoleId = "0",CreateUserId="0" },
+                    new Role { Id = "2", RoleName = "Administrator", ParentRoleId="1", CreateUserId="0"}
                 };
                 db.Insertable(roles).ExecuteCommand();
             }
@@ -118,7 +119,11 @@ namespace rbac.StartupExtensions
                     new RoleMenu { RoleId = roles[0].Id, MenuId="1310000000116"},
                     new RoleMenu { RoleId = roles[0].Id, MenuId="1310000000117"},
                     new RoleMenu { RoleId = roles[0].Id, MenuId="1310000000118"},                    
-                    new RoleMenu { RoleId = roles[0].Id, MenuId="1310000000118"}                    
+                    new RoleMenu { RoleId = roles[0].Id, MenuId="1310000000118"},
+                    new RoleMenu { RoleId = roles[1].Id, MenuId="1310000000101"},
+                    new RoleMenu { RoleId = roles[1].Id, MenuId="1310000000111"},
+                    new RoleMenu { RoleId = roles[1].Id, MenuId="1310000000112"},
+                    new RoleMenu { RoleId = roles[1].Id, MenuId="1310000000116"}
                 };
                 db.Insertable(RoleMenus).ExecuteCommand();
             }

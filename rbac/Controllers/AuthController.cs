@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using rbac.CoreBusiness.Services;
@@ -37,5 +38,12 @@ namespace rbac.Controllers
             return Ok(token);                    
         }
         
+        [Authorize]
+        [HttpPost("AddUser")]
+        public async Task<ActionResult<String>> AddUser(UserDto userDto)
+        {
+            string result = await _userServices.AddUserAsync(userDto);
+            return Ok(result);
+        }
     }
 }

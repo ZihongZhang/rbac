@@ -27,11 +27,11 @@ public class Role : ModelBase
     /// 与user导航属性
     /// </summary>
     [Navigate(typeof(UserRole),nameof(UserRole.RoleId),nameof(UserRole.UserId))]
-    public List<User>? RoleList { get; set; }
+    public List<User> UserList { get; set; } = new List<User>();
 
     /// <summary>
     /// 与Menu的导航属性
     /// </summary>
     [Navigate(typeof(RoleMenu),nameof(RoleMenu.RoleId),nameof(RoleMenu.MenuId))]
-    public List<Menu>? MenuList{ get; set; }
+    public List<Menu> MenuList{ get; set; } = new List<Menu>();
 }

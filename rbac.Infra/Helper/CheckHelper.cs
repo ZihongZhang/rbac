@@ -13,7 +13,7 @@ public static class CheckHelper
 
     public static T NotNull<T>(T? obj, string objName) where T : class
     {
-        if (obj == null) throw new DomainException($"传入的{objName}为空值");
+        if (obj == null) throw new DomainException($"传入的为空值，说明{objName}");
         return obj;
     }
 }

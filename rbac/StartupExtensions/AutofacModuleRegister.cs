@@ -17,6 +17,8 @@ public class AutofacModuleRegister : Autofac.Module
     {
         //注册仓储
         builder.RegisterGeneric(typeof(Repository<>)).InstancePerLifetimeScope();
+
+         builder.RegisterType<HttpContextAccessor>().As<IHttpContextAccessor>();
         
         // builder.RegisterType<UserServices>().InstancePerLifetimeScope();
 
