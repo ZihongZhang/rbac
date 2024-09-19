@@ -80,6 +80,10 @@ public abstract class ModelBase : ModelBaseId, ISoftDeletable
     [SugarColumn(ColumnDescription = "软删除")]
     public virtual bool IsDeleted { get; set; } = false;
 
+
+    /// <summary>
+    /// 并发锁
+    /// </summary>
     [SugarColumn(IsEnableUpdateVersionValidation = true,IsNullable = true)]
     public string Ver { get; set; }
 }

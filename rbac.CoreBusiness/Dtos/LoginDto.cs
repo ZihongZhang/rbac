@@ -1,6 +1,6 @@
 using System;
 
-namespace rbac.Modals.Dto;
+namespace rbac.CoreBusiness.Dtos;
 
 public class LoginDto
 {

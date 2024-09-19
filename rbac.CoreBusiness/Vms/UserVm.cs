@@ -1,19 +1,20 @@
 using System;
 using rbac.Modals.Enum;
+using rbac.Modals.Models;
 
-namespace rbac.Modals.Dto;
+namespace rbac.CoreBusiness.Vms;
 
-public class UserDto
+public class UserVm
 {
+    /// <summary>
+    /// 用户id
+    /// </summary>
+    public string Id { get; set; }
+
     /// <summary>
     /// 登录用户名
     /// </summary>
     public required string Username { get; set; }
-
-    /// <summary>
-    /// 登录密码 已使用MD5加密
-    /// </summary>
-    public required string Password { get; set; }  // 注意：实际应用中应对密码进行哈希处理
 
     /// <summary>
     /// 用户邮箱不可为空
@@ -29,6 +30,19 @@ public class UserDto
     /// 状态
     /// </summary>
     public StatusEnum Status { get; set; } = StatusEnum.Enable;
-
+    
+    /// <summary>
+    /// 租户id
+    /// </summary>
     public string TenantId { get; set; } = "0" ;
+
+    /// <summary>
+    /// 并发控制字段
+    /// </summary>
+    public string Ver { get; set; }   
+
+    /// <summary>
+    /// 角色列表
+    /// </summary>
+    public List<string> RoleIdList { get; set; } =new List<string>(); 
 }

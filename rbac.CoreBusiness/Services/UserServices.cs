@@ -3,13 +3,18 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Mapster;
+using Masuit.Tools;
+using Masuit.Tools.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Tokens;
+using rbac.CoreBusiness.Dtos;
+using rbac.CoreBusiness.Qms;
+using rbac.CoreBusiness.Vms;
 using rbac.Infra;
 using rbac.Infra.Exceptions;
 using rbac.Infra.FunctionalInterfaces;
 using rbac.Infra.Helper;
-using rbac.Modals.Dto;
+using rbac.Modals.Enum;
 using rbac.Modals.Models;
 using rbac.Repository.Base;
 using SqlSugar;
@@ -29,6 +34,8 @@ public class UserServices : IScoped
         _httpContextAccessor = httpContextAccessor;
     }
 
+    #region 登录，添加新用户，获取用户
+
     /// <summary>
     /// 登录
     /// </summary>
@@ -40,6 +47,7 @@ public class UserServices : IScoped
         CheckHelper.NotNull(loginDto);
         User user = await _userRepository.GetSingleAsync(a => a.Username == loginDto.UserName);
         if (user == null) throw new DomainException("不存在该用户");
+        if (user.Status == StatusEnum.Disable) throw new DomainException("该用户已被禁用");
         if (string.Equals(user.Password, loginDto.Password))
         {
             return GenerateToken(user);
@@ -54,32 +62,32 @@ public class UserServices : IScoped
     /// <returns></returns>
     public async Task<string> AddUserAsync(UserDto userDto)
     {
+        CheckHelper.NotNull(userDto,"没有正确传入数据");
         var user = userDto.Adapt<User>();
 
         //查看是否有重复用户名或者不存在对应的租户
         var username = _userRepository.GetFirst(a => a.Username == user.Username);
-        if(username != null) throw new DomainException("用户id已存在,请更换用户名");
+        if(username != null) throw new DomainException("用户名已存在,请更换用户名");
         var tenantId = _db.Queryable<Tenant>().Where(i => i.Id == user.TenantId).Count();
         if(tenantId==0) throw new DomainException("租户id不存在");
+
 
         // var TenantId = _httpContextAccessor.HttpContext?.User.FindFirstValue("tenantId");
         //获取当前userId并作为创建id赋值
         var UserId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        CheckHelper.NotNull(UserId, "token中不包含userId");
+        CheckHelper.NotNull(UserId, "当前用户信息不存在");
         user.CreateUserId = UserId ?? "1";
         user.Id = Guid.NewGuid().ToString();
 
-        //使用sqlSugar导航属性来插入数据，默认新增加的用户的role是普通员工
-        user.RoleList.Add(new Role
-        {
-            Id = "2"
-        });
-        await _db.InsertNav(user)
+        //给user增加导航属性
+        AddUserNavigationRole(ref user,userDto);
+        var result = await _db.InsertNav(user)
         .Include(x => x.RoleList, new InsertNavOptions()
         {
             ManyToManyNoDeleteMap = true
         })
         .ExecuteCommandAsync();
+        if(!result) throw new DomainException("插入失败");
         return $"恭喜成功插入，{user.Username}";
     }
 
@@ -87,13 +95,80 @@ public class UserServices : IScoped
     /// 获取全部用户信息
     /// </summary>
     /// <returns></returns>
-    public async Task<List<UserDto>> GetAllUser()
+    public async Task<List<UserVm>> GetAllUsersAsync()
     {
         var user = await _userRepository.GetListAsync();
-        var userDto = user.Adapt<List<UserDto>>();
+        var userDto = user.Adapt<List<UserVm>>();
         return userDto;
     }
 
+    /// <summary>
+    /// 获取分页User
+    /// </summary>
+    /// <param name="userQms"></param>
+    /// <returns></returns>
+    public async Task<PagedList<UserVm>> GetPagedUsersAsync(UserQms userQms)
+    {
+        RefAsync<int> totalCount = 0;
+        var userId = _httpContextAccessor?.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        CheckHelper.NotNull(userId,"当前用户不存在");
+        CheckHelper.NotNull(await _userRepository.GetByIdAsync(userId),"当前用户信息不存在");
+
+        //使用sqlsugarClient获取数据
+        var userList = await _db.Queryable<User>()
+        .WhereIF(!string.IsNullOrWhiteSpace(userQms.Name),it => it.Username.Contains(userQms.Name ?? "1"))
+        .OrderBy(userQms.SortBy)
+        .Includes(x => x.RoleList)
+        .ToPageListAsync(userQms.PageNum,userQms.PageSize,totalCount);
+
+        var userDtoList = userList.Adapt<List<UserVm>>();
+        
+        //生成适合返回给前端的格式
+        var formattedRes = new PagedList<UserVm>(userDtoList,userQms.PageNum,userQms.PageSize,totalCount);
+        return formattedRes;        
+    }
+    #endregion
+
+    #region 修改用户，删除用户
+    public async Task<string> UpdateUserAsync(UserVm userVm)
+    {
+        CheckHelper.NotNull(userVm,"更新数据格式不对");
+        var user = _userRepository.GetFirst(user => user.Id == userVm.Id);
+        CheckHelper.NotNull(user,"用户不存在");
+        var updateUser = userVm.Adapt<User>();
+        var userDto = userVm.Adapt<UserDto>();
+        AddUserNavigationRole(ref updateUser, userDto);
+        //更新用户以及用户角色关系表
+        var result =await  _db.UpdateNav(updateUser).Include(a => a.RoleList).ExecuteCommandAsync();
+        if (!result) throw new DomainException("更新失败，请查看更新数据格式是否正确");
+        return "插入成功";
+    }
+
+   
+    #endregion
+
+
+    #region 通用方法
+    /// <summary>
+    /// 给user增加导航属性
+    /// </summary>
+    /// <param name="user"></param>
+    /// <param name="userDto"></param>
+    public void AddUserNavigationRole (ref User user, UserDto userDto)
+    {
+        //初始化列表因为导航属性必须不能初始化
+        user.RoleList=new List<Role>();
+        // 使用sqlSugar导航属性来插入数据
+        foreach (var id in userDto.RoleIdList)
+        {            
+            user.RoleList.Add(new Role
+            {
+                Id = id
+            });            
+        }        
+    }
+    
+    
     /// <summary>
     /// 产生token
     /// </summary>
@@ -121,4 +196,5 @@ public class UserServices : IScoped
         );
         return new JwtSecurityTokenHandler().WriteToken(tokenOptions);
     }
+    #endregion
 }

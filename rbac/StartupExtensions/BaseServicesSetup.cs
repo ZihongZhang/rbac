@@ -88,7 +88,5 @@ public static class BaseServiceSetup
                     loggingBuilder.AddSerilog();
                 }
         );
-    }
-
-    
+    }    
 }
