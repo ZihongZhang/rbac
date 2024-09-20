@@ -63,6 +63,8 @@ namespace rbac
                             .CreateLogger();
                 builder.Services.AddSerilog();
 
+                builder.Services.AddAndConfigMapster();
+
                 var app = builder.Build();
 
                 // Configure the HTTP request pipeline.

@@ -26,13 +26,13 @@ public abstract class ModelBase : ModelBaseId, ISoftDeletable
     /// 创建时间
     /// </summary>
     [SugarColumn(ColumnDescription = "创建时间", IsNullable = true, IsOnlyIgnoreUpdate = true, InsertServerTime = true)]
-    public virtual DateTime CreateTime { get; set; }=DateTime.Now;
+    public virtual DateTime CreateTime { get; set; }
 
     /// <summary>
     /// 更新时间
     /// </summary>
-    [SugarColumn(ColumnDescription = "更新时间",  UpdateServerTime = true)]
-    public virtual DateTime? UpdateTime { get; set; }=DateTime.Now;
+    [SugarColumn(ColumnDescription = "更新时间",  UpdateServerTime = true, InsertServerTime = true)]
+    public virtual DateTime? UpdateTime { get; set; }
 
     /// <summary>
     /// 创建者Id
@@ -85,5 +85,5 @@ public abstract class ModelBase : ModelBaseId, ISoftDeletable
     /// 并发锁
     /// </summary>
     [SugarColumn(IsEnableUpdateVersionValidation = true,IsNullable = true)]
-    public string Ver { get; set; }
+    public string Ver { get; set; } ="1";
 }

@@ -1,8 +1,10 @@
 using System;
 using System.Text;
+using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using rbac.Configs;
 using rbac.Filters;
 using rbac.Infra;
 using Serilog;
@@ -88,5 +90,15 @@ public static class BaseServiceSetup
                     loggingBuilder.AddSerilog();
                 }
         );
-    }    
+    } 
+
+    /// <summary>
+    /// 设置和添加mapster
+    /// </summary>
+    /// <param name="services"></param>
+    public static void AddAndConfigMapster(this IServiceCollection services)
+    {
+        services.AddMapster();
+        MapsterConfig.Configure();
+    }   
 }

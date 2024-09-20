@@ -39,7 +39,7 @@ public class UserVm
     /// <summary>
     /// 并发控制字段
     /// </summary>
-    public string Ver { get; set; }   
+    public string Ver { get; set; } ="1";  
 
     /// <summary>
     /// 角色列表

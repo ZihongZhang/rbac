@@ -88,6 +88,18 @@ namespace rbac.Controllers
         {
             var res = await _userServices.UpdateUserAsync(userVm);
             return Ok(res);
+        }
+        /// <summary>
+        /// 删除角色
+        /// </summary>
+        /// <param name="userVm"></param>
+        /// <returns></returns>
+        [Authorize]
+        [HttpPost("DeleteUser")]
+        public async Task<ActionResult> DeleteUser(UserVm userVm)
+        {
+            var res = await _userServices.DeleteUserAsync(userVm);
+            return Ok(res);
         } 
     }
 }
