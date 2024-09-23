@@ -39,7 +39,31 @@ namespace rbac.Controllers
             string token = await _userServices.LoginAsync(login);
             return Ok(token);                    
         }
-        
+
+        /// <summary>
+        /// 获取当前用户信息
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost("Info")]
+        public async Task<ActionResult<InfoVm>> GetCurrentUserInfo()
+        {
+            var userInfo = await _userServices.GetInfoAsync();
+            return Ok(userInfo);
+        }
+
+        /// <summary>
+        /// 获取所有角色
+        /// </summary>
+        /// <param name="userQms"></param>
+        /// <returns></returns>
+        [Authorize]
+        [HttpGet("roles")]
+        public async Task<ActionResult> GetRoleListAsyc()
+        {
+            var result =await _userServices.GetRoleListAsyc();
+            return Ok(result);           
+        }
+
         /// <summary>
         /// 添加用户
         /// </summary>
@@ -58,7 +82,7 @@ namespace rbac.Controllers
         /// </summary>
         /// <returns></returns>
         [Authorize]
-        [HttpPost("GetAllUsers")]
+        [HttpGet("GetAllUsers")]
         public async Task<ActionResult> GetAllUsers()
         {
             var result = await _userServices.GetAllUsersAsync();
@@ -71,12 +95,15 @@ namespace rbac.Controllers
         /// <param name="userQms"></param>
         /// <returns></returns>
         [Authorize]
-        [HttpPost("GetPagedUsers")]
-        public async Task<ActionResult> GetPagedUsers(UserQms userQms)
+        [HttpGet("PagedUsers")]
+        public async Task<ActionResult> GetPagedUsers([FromQuery]UserQms userQms)
         {
             var result =await _userServices.GetPagedUsersAsync(userQms);
             return Ok(result);           
         }
+
+        
+
         /// <summary>
         /// 更新用户信息以及角色
         /// </summary>

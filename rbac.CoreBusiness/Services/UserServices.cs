@@ -140,11 +140,10 @@ public class UserServices : IScoped
     #region 修改用户，删除用户
     public async Task<string> UpdateUserAsync(UserVm userVm)
     {
-        if(string.IsNullOrWhiteSpace(userVm.Username)) throw new DomainException("用户名未填写");
-        CheckHelper.NotNull(userVm,"更新数据格式不对");
+        if(string.IsNullOrWhiteSpace(userVm?.Username)) throw new DomainException("用户名未填写");
 
-        var userCount = _userRepository.AsQueryable().Where(user => user.Id == userVm.Id).Count();
-        if(userCount == 0) throw new DomainException("用户不存在");
+        var userCount = await _userRepository.AsQueryable().Where(user => user.Id == userVm.Id).AnyAsync();
+        if(!userCount) throw new DomainException("用户不存在");
         var updateUser = userVm.Adapt<User>();
         updateUser.UpdateUserId = _httpContextAccessor?.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
         
@@ -180,6 +179,40 @@ public class UserServices : IScoped
         if (res != null) return "删除成功";
         throw new DomainException("删除失败");        
     }
+
+    /// <summary>
+    /// 返回当前用户信息
+    /// </summary>
+    /// <returns></returns>
+    public async Task<InfoVm> GetInfoAsync()
+    {
+        var userId = _httpContextAccessor?.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        CheckHelper.NotNull(userId,"当前用户不存在");
+        
+        var user =await _db.Queryable<User>().Includes(t => t.RoleList).FirstAsync(a => a.Id == userId);
+        CheckHelper.NotNull(user,"当前用户信息不存在");
+        var info = user.Adapt<InfoVm>();   
+        return info;
+    }
+
+    /// <summary>
+    /// 返回所有角色列表
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="DomainException"></exception>
+    public async Task<List<RoleVm>> GetRoleListAsyc()
+    {
+        var userId = _httpContextAccessor?.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        CheckHelper.NotNull(userId,"当前用户不存在");
+
+        var userExist =await _db.Queryable<User>().AnyAsync(a => a.Id == userId);
+        if (!userExist) throw new DomainException("当前用户不存在");
+
+        var roles = await _db.Queryable<Role>().ToListAsync();
+        var res = roles.Adapt<List<RoleVm>>();
+        return res;
+    }
+    
 
    
     #endregion
