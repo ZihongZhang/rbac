@@ -44,7 +44,7 @@ namespace rbac.Controllers
         /// 获取当前用户信息
         /// </summary>
         /// <returns></returns>
-        [HttpPost("Info")]
+        [HttpPost("info")]
         public async Task<ActionResult<InfoVm>> GetCurrentUserInfo()
         {
             var userInfo = await _userServices.GetInfoAsync();
@@ -70,7 +70,7 @@ namespace rbac.Controllers
         /// <param name="userDto"></param>
         /// <returns></returns>
         [Authorize]
-        [HttpPost("AddUser")]
+        [HttpPost("add-user")]
         public async Task<ActionResult> AddUser(UserDto userDto)
         {
             string result = await _userServices.AddUserAsync(userDto);
@@ -82,11 +82,19 @@ namespace rbac.Controllers
         /// </summary>
         /// <returns></returns>
         [Authorize]
-        [HttpGet("GetAllUsers")]
+        [HttpGet("get-all-users")]
         public async Task<ActionResult> GetAllUsers()
         {
             var result = await _userServices.GetAllUsersAsync();
             return Ok(result);            
+        }
+
+        [Authorize]
+        [HttpGet("get-all-menus")]
+        public async Task<ActionResult> GetAllMenus()
+        {
+            var res = await _userServices.GetMenuList();
+            return Ok(res);
         }
 
         /// <summary>
@@ -95,7 +103,7 @@ namespace rbac.Controllers
         /// <param name="userQms"></param>
         /// <returns></returns>
         [Authorize]
-        [HttpGet("PagedUsers")]
+        [HttpGet("paged-users")]
         public async Task<ActionResult> GetPagedUsers([FromQuery]UserQms userQms)
         {
             var result =await _userServices.GetPagedUsersAsync(userQms);
@@ -110,7 +118,7 @@ namespace rbac.Controllers
         /// <param name="userVm"></param>
         /// <returns></returns>
         [Authorize]
-        [HttpPost("UpdateUser")]
+        [HttpPost("update-user")]
         public async Task<ActionResult> UpdateUser(UserVm userVm)
         {
             var res = await _userServices.UpdateUserAsync(userVm);
@@ -122,7 +130,7 @@ namespace rbac.Controllers
         /// <param name="userVm"></param>
         /// <returns></returns>
         [Authorize]
-        [HttpPost("DeleteUser")]
+        [HttpPost("delete-user")]
         public async Task<ActionResult> DeleteUser(UserVm userVm)
         {
             var res = await _userServices.DeleteUserAsync(userVm);

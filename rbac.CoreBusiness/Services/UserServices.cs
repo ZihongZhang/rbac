@@ -39,7 +39,7 @@ public class UserServices : IScoped
         //_mapper = mapper;
     }
 
-    #region 登录，添加新用户，获取用户
+    #region 登录，添加新用户，获取用户,获取菜单信息
 
     /// <summary>
     /// 登录
@@ -135,6 +135,22 @@ public class UserServices : IScoped
         var formattedRes = new PagedList<UserVm>(userDtoList,userQms.PageNum,userQms.PageSize,totalCount);
         return formattedRes;        
     }
+
+    public async Task<List<Menu>> GetMenuList()
+    {
+        var userId = _httpContextAccessor?.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        CheckHelper.NotNull(userId,"当前用户不存在");
+        //获取当前用户对应的权限
+        var roleIds = await _db.Queryable<UserRole>().Where(a => a.UserId == userId).Select(a => a.RoleId).ToListAsync();
+        CheckHelper.NotNull(roleIds,"当前用户不存在对应的角色");
+        var MenuIds = await _db.Queryable<RoleMenu>().Where(a => roleIds.Contains(a.RoleId ?? "0")).Select(a => a.MenuId).Distinct().ToListAsync();
+        CheckHelper.NotNull(MenuIds,"当前角色没有任何权限");
+        var menu = await _db.Queryable<Menu>().Where(a => MenuIds.Contains(a.Id)).ToListAsync();
+        
+        
+        return menu;                    
+    }
+
     #endregion
 
     #region 修改用户，删除用户
@@ -246,6 +262,11 @@ public class UserServices : IScoped
         );
         return new JwtSecurityTokenHandler().WriteToken(tokenOptions);
     }
+
+    // public List<MenuVm> TurnMenuIntoTree( List<Menu> menus )
+    // {
+
+    // }
     #endregion
 
     #region 废弃方法
