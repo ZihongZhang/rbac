@@ -104,6 +104,6 @@ public class Menu : ModelBase
     /// <summary>
     /// 与role导航属性
     /// </summary>
-    [Navigate(typeof(UserRole),nameof(UserRole.UserId),nameof(UserRole.RoleId))]
+    [Navigate(typeof(RoleMenu),nameof(RoleMenu.MenuId),nameof(RoleMenu.RoleId))]
     public List<Role> RoleList { get; set; }
 }

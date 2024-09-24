@@ -136,7 +136,7 @@ public class UserServices : IScoped
         return formattedRes;        
     }
 
-    public async Task<List<Menu>> GetMenuList()
+    public async Task<List<MenuVm>> GetMenuList()
     {
         var userId = _httpContextAccessor?.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         CheckHelper.NotNull(userId,"当前用户不存在");
@@ -146,9 +146,12 @@ public class UserServices : IScoped
         var MenuIds = await _db.Queryable<RoleMenu>().Where(a => roleIds.Contains(a.RoleId ?? "0")).Select(a => a.MenuId).Distinct().ToListAsync();
         CheckHelper.NotNull(MenuIds,"当前角色没有任何权限");
         var menu = await _db.Queryable<Menu>().Where(a => MenuIds.Contains(a.Id)).ToListAsync();
-        
-        
-        return menu;                    
+                
+        //先转换成listvm
+        var menuVmList = menu.Adapt<List<MenuVm>>();
+        GetMenuVms(menuVmList);
+
+        return menuVmList;                    
     }
 
     #endregion
@@ -262,11 +265,25 @@ public class UserServices : IScoped
         );
         return new JwtSecurityTokenHandler().WriteToken(tokenOptions);
     }
-
-    // public List<MenuVm> TurnMenuIntoTree( List<Menu> menus )
-    // {
-
-    // }
+    
+    /// <summary>
+    /// 获取所有菜单(树型)
+    /// </summary>
+    /// <param name="menus"></param>
+    /// <param name="pid"></param>
+    /// <returns></returns>
+    public List<MenuVm> GetMenuVms( List<MenuVm> menus, string pid ="0" )
+    {
+        if(menus == null || !menus.Any(w => w.Pid == pid) ) return new List<MenuVm>();
+        var res = new List<MenuVm>();
+        var children = menus.Where(a => a.Pid == pid).ToList();
+        foreach (var menu in children)
+        {
+            menu.Children = GetMenuVms(menus, menu.Id);
+            res.Add(menu);
+        } 
+        return res;       
+    }
     #endregion
 
     #region 废弃方法

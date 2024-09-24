@@ -14,7 +14,7 @@ public class MenuVm
     /// <summary>
     /// 父Id
     /// </summary>
-    public long Pid { get; set; }
+    public string Pid { get; set; }
 
     /// <summary>
     /// 菜单类型（1目录 2菜单 3按钮）
@@ -79,6 +79,6 @@ public class MenuVm
     /// <summary>
     /// 菜单子项
     /// </summary>
-    public List<Menu> Children { get; set; } 
+    public List<MenuVm> Children { get; set; } 
 
 }
