@@ -67,7 +67,7 @@ public class UserServices : IScoped
     /// <returns></returns>
     public async Task<string> AddUserAsync(UserDto userDto)
     {
-        if(string.IsNullOrWhiteSpace(userDto.Username)||string.IsNullOrWhiteSpace(userDto.Password)) throw new DomainException("用户名或密码未填写");
+        if(string.IsNullOrWhiteSpace(userDto.Username)||string.IsNullOrWhiteSpace(userDto.Password)||string.IsNullOrWhiteSpace(userDto.Email)) throw new DomainException("用户名或密码或邮箱未填写");
         CheckHelper.NotNull(userDto,"没有正确传入数据");
         
         //使用配置好的mapster来转换类型
