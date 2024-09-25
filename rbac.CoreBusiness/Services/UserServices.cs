@@ -186,6 +186,8 @@ public class UserServices : IScoped
     /// <exception cref="DomainException"></exception>
     public async Task<string> DeleteUserAsync(UserVm userVm)
     {
+        var userId = _httpContextAccessor?.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        CheckHelper.NotNull(userId,"当前用户不存在");
         if(string.IsNullOrWhiteSpace(userVm.Username)) throw new DomainException("用户名未填写");
         var userCount = _userRepository.AsQueryable().Where(user => user.Id == userVm.Id).Count();
         if(userCount == 0) throw new DomainException("删除用户不存在");
@@ -194,8 +196,14 @@ public class UserServices : IScoped
         deleteUser.IsDeleted =true;
         deleteUser.UpdateUserId = _httpContextAccessor?.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
         deleteUser.UpdateTime = DateTime.Now;
-        var res =_db.Updateable<User>().ExecuteCommandAsync();
-        if (res != null) return "删除成功";
+        var res = await _db.Updateable<User>().SetColumns(a => new User(){
+            IsDeleted = true,
+            UpdateTime = DateTime.Now,
+            UpdateUserId = userId
+            })
+            .Where(a => a.Id == userVm.Id)
+            .ExecuteCommandAsync();
+        if (res != 0) return "删除成功";
         throw new DomainException("删除失败");        
     }
 
@@ -212,31 +220,89 @@ public class UserServices : IScoped
         CheckHelper.NotNull(user,"当前用户信息不存在");
         var info = user.Adapt<InfoVm>();   
         return info;
-    }
+    }   
+    #endregion
 
+    #region 角色相关方法
     /// <summary>
-    /// 返回所有角色列表
+    /// 获取所有角色信息
     /// </summary>
     /// <returns></returns>
-    /// <exception cref="DomainException"></exception>
     public async Task<List<RoleVm>> GetRoleListAsyc()
     {
-        var userId = _httpContextAccessor?.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        CheckHelper.NotNull(userId,"当前用户不存在");
-
-        var userExist =await _db.Queryable<User>().AnyAsync(a => a.Id == userId);
-        if (!userExist) throw new DomainException("当前用户不存在");
-
-        var roles = await _db.Queryable<Role>().ToListAsync();
+        var roles = await _db.Queryable<Role>()
+        .Includes(a => a.MenuList)
+        .ToListAsync();
         var res = roles.Adapt<List<RoleVm>>();
         return res;
     }
+    /// <summary>
+    /// 修改角色信息
+    /// </summary>
+    /// <param name="roleVms"></param>
+    /// <returns></returns>
+    public async Task<string> UpdateRolesMenuAsync( RoleVm roleVms)
+    {
+        var userId = _httpContextAccessor?.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        CheckHelper.NotNull(userId,"当前用户不存在");
+        if(string.IsNullOrWhiteSpace(roleVms.RoleName)||string.IsNullOrWhiteSpace(roleVms.Id)||string.IsNullOrWhiteSpace(roleVms.ParentRoleId)) 
+        throw new DomainException("角色信息未填写完整");
+        var userExist =await _db.Queryable<User>().AnyAsync(a => a.Id == userId);
+        if (!userExist) throw new DomainException("当前用户不存在");
+        var roleExist =await _db.Queryable<Role>().AnyAsync(a => a.Id == roleVms.Id);
+        if (!roleExist) throw new DomainException("当前用户不存在");
+        var role = roleVms.Adapt<Role>();
+        var res =  await _db.UpdateNav(role)
+                    .Include(a => a.MenuList)
+                    .ExecuteCommandAsync();
+        if (res) return "更新成功";
+        throw new DomainException("更新角色权限失败失败");
+    }
+    /// <summary>
+    /// 添加新角色信息
+    /// </summary>
+    /// <param name="roleVm"></param>
+    /// <returns></returns>
+    public async Task<string> AddRoleAsync(RoleVm roleVm)
+    {
+        var userId = _httpContextAccessor?.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        CheckHelper.NotNull(userId,"当前用户不存在");
+        var userExist =await _db.Queryable<User>().AnyAsync(a => a.Id == userId);
+        if (!userExist) throw new DomainException("当前用户不存在");
+        if(string.IsNullOrWhiteSpace(roleVm.RoleName)||string.IsNullOrWhiteSpace(roleVm.Id)||string.IsNullOrWhiteSpace(roleVm.ParentRoleId)) 
+        throw new DomainException("角色信息未填写完整");
+        var role = roleVm.Adapt<Role>();
+        role.Id = Guid.NewGuid().ToString();
+        role.CreateUserId = _httpContextAccessor?.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var res = await _db.InsertNav(role).Include(x => x.MenuList).ExecuteCommandAsync();
+        if (res) return "插入成功";
+        throw new DomainException("插入失败");
+    }
+    /// <summary>
+    /// 删除角色信息
+    /// </summary>
+    /// <param name="roleVm"></param>
+    /// <returns></returns>
+    public async Task<string> DeleteRoleAsync(RoleVm roleVm)
+    {
+        var userId = _httpContextAccessor?.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        CheckHelper.NotNull(userId,"当前用户不存在");
+        var userExist =await _db.Queryable<User>().AnyAsync(a => a.Id == userId);
+        if (!userExist) throw new DomainException("当前用户不存在");
+        if(string.IsNullOrWhiteSpace(roleVm.RoleName)||string.IsNullOrWhiteSpace(roleVm.Id)||string.IsNullOrWhiteSpace(roleVm.ParentRoleId)) 
+        throw new DomainException("角色信息未填写完整");
+        var res = await _db.Updateable<Role>().SetColumns(a => new Role(){
+            IsDeleted = true,
+            UpdateTime = DateTime.Now,
+            UpdateUserId = userId
+            })
+        .Where(a => a.Id == roleVm.Id).ExecuteCommandAsync();
+        if (res != 0) return "删除成功";
+        throw new DomainException("删除失败");
+    }
+
     
-
-   
     #endregion
-
-
     #region 通用方法    
     /// <summary>
     /// 产生token

@@ -89,6 +89,10 @@ namespace rbac.Controllers
             return Ok(result);            
         }
 
+        /// <summary>
+        /// 获取该角色的菜单
+        /// </summary>
+        /// <returns></returns>
         [Authorize]
         [HttpGet("get-all-menus")]
         public async Task<ActionResult> GetAllMenus()
@@ -125,7 +129,7 @@ namespace rbac.Controllers
             return Ok(res);
         }
         /// <summary>
-        /// 删除角色
+        /// 删除用户
         /// </summary>
         /// <param name="userVm"></param>
         /// <returns></returns>
@@ -135,6 +139,46 @@ namespace rbac.Controllers
         {
             var res = await _userServices.DeleteUserAsync(userVm);
             return Ok(res);
-        } 
+        }
+
+
+        /// <summary>
+        /// 更新角色对应的菜单
+        /// </summary>
+        /// <param name="roleVm"></param>
+        /// <returns></returns>
+        [Authorize]
+        [HttpPost("update-role-menu")]
+        public async Task<ActionResult> updateRoleMenu(RoleVm roleVm)
+        {
+            var res = await _userServices.UpdateRolesMenuAsync(roleVm);
+            return Ok(res);
+        }
+        /// <summary>
+        /// 增加新的角色
+        /// </summary>
+        /// <param name="roleVm"></param>
+        /// <returns></returns>
+        [Authorize]
+        [HttpPost("add-role")]
+        public async Task<ActionResult> AddRoleAsync(RoleVm roleVm)
+        {
+            var res = await _userServices.AddRoleAsync(roleVm);
+            return Ok(res);
+        }
+        /// <summary>
+        /// 删除角色
+        /// </summary>
+        /// <param name="roleVm"></param>
+        /// <returns></returns>
+        [Authorize]
+        [HttpPost("delete-role")]
+        public async Task<ActionResult> DeleteRoleAsync(RoleVm roleVm)
+        {
+            var res = await _userServices.DeleteRoleAsync(roleVm);
+            return Ok(res);
+        }
+
+         
     }
 }

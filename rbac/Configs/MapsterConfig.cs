@@ -11,6 +11,23 @@ public static class MapsterConfig
     public static void Configure()
     { 
         TypeAdapterConfig.GlobalSettings.Default.PreserveReference(true);
+        //将role转化成roleVm
+        TypeAdapterConfig<Role,RoleVm>
+            .NewConfig()
+            .Map(dest => dest.Id, src => src.Id)
+            .Map(dest => dest.RoleName, src => src.RoleName)
+            .Map(dest => dest.ParentRoleId, src => src.ParentRoleId)
+            .Map(dest => dest.Status, src => src.Status)
+            .Map(dest => dest.MenuIdList, src => (from menu in src.MenuList select menu.Id).ToList());
+
+        //将roleVm转化成role
+        TypeAdapterConfig<RoleVm,Role>
+            .NewConfig()
+            .Map(dest => dest.Id, src => src.Id)
+            .Map(dest => dest.RoleName, src => src.RoleName)
+            .Map(dest => dest.ParentRoleId, src => src.ParentRoleId)
+            .Map(dest => dest.Status, src => src.Status)
+            .Map(dest => dest.MenuList, src => src.MenuIdList.Select(id => new Menu { Id = id }).ToList());
 
         //将user转化为userDto
         TypeAdapterConfig<User,UserDto>
