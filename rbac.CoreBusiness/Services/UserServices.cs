@@ -252,8 +252,12 @@ public class UserServices : IScoped
         var roleExist =await _db.Queryable<Role>().AnyAsync(a => a.Id == roleVms.Id);
         if (!roleExist) throw new DomainException("当前用户不存在");
         var role = roleVms.Adapt<Role>();
-        var res =  await _db.UpdateNav(role)
-                    .Include(a => a.MenuList)
+        var res =  await _db.UpdateNav(role,new UpdateNavRootOptions(){
+                        IsIgnoreAllNullColumns = true
+                        })
+                    .Include(a => a.MenuList, new UpdateNavOptions { 
+                         ManyToManyIsUpdateA=true                         
+                        })
                     .ExecuteCommandAsync();
         if (res) return "更新成功";
         throw new DomainException("更新角色权限失败失败");
