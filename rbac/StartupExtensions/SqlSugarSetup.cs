@@ -13,7 +13,7 @@ namespace rbac.StartupExtensions
         public static void AddSqlsugarSetup(this IServiceCollection services)
         {
             if (services == null) throw new ArgumentNullException(nameof(services));
-            
+
             #region 设置数据库连接
             //添加数据库连接
             SqlSugarClient db = new SqlSugarClient(new ConnectionConfig()
@@ -59,7 +59,7 @@ namespace rbac.StartupExtensions
             #region 初始化表并加入种子数据
             db.DbMaintenance.CreateDatabase(Directory.GetCurrentDirectory());
             db.CodeFirst.SetStringDefaultLength(200).InitTables(typeof(Menu), typeof(Role), typeof(RoleMenu), typeof(Tenant), typeof(User), typeof(UserRole));
-            
+
             //提前定义来然后面可以拿到数据
             List<Menu>? Menus = null;
             List<Role>? roles = null;
@@ -77,10 +77,12 @@ namespace rbac.StartupExtensions
                     new Menu{ CreateUserId="0", Id="1310000000113", Pid=1310000000111, Title="编辑", Permission="sysUser:update", Type=MenuTypeEnum.Btn },
                     new Menu{ CreateUserId="0", Id="1310000000114", Pid=1310000000111, Title="增加", Permission="sysUser:add", Type=MenuTypeEnum.Btn },
                     new Menu{ CreateUserId="0", Id="1310000000115", Pid=1310000000111, Title="删除", Permission="sysUser:delete", Type=MenuTypeEnum.Btn },
-                    new Menu{ CreateUserId="0", Id="1310000000116", Pid=1310000000111, Title="详情", Permission="sysUser:detail", Type=MenuTypeEnum.Btn },
-                    new Menu{ CreateUserId="0", Id="1310000000117", Pid=1310000000111, Title="授权角色", Permission="sysUser:grantRole", Type=MenuTypeEnum.Btn },
                     new Menu{ CreateUserId="0", Id="1310000000118", Pid=1310000000111, Title="重置密码", Permission="sysUser:resetPwd", Type=MenuTypeEnum.Btn },
-                    new Menu{ CreateUserId="0", Id="1310000000119", Pid=1310000000111, Title="设置状态", Permission="sysUser:setStatus", Type=MenuTypeEnum.Btn }       
+                    new Menu{ CreateUserId="0", Id="1310000000120", Pid=1310000000101, Title="账号管理", Path="/system/user", Name="sysRole", Component="/system/role/index", Icon="ele-User", Type=MenuTypeEnum.Menu },
+                    new Menu{ CreateUserId="0", Id="1310000000121", Pid=1310000000120, Title="添加角色", Permission="sysUser:insertRole", Type=MenuTypeEnum.Btn },
+                    new Menu{ CreateUserId="0", Id="1310000000122", Pid=1310000000120, Title="修改角色", Permission="sysUser:updateRole", Type=MenuTypeEnum.Btn },
+                    new Menu{ CreateUserId="0", Id="1310000000123", Pid=1310000000120, Title="删除角色", Permission="sysUser:deleteRole", Type=MenuTypeEnum.Btn },
+                    new Menu{ CreateUserId="0", Id="1310000000119", Pid=1310000000120, Title="查询角色", Permission="sysUser:getRole", Type=MenuTypeEnum.Btn }
                 };
                 db.Insertable(Menus).ExecuteCommand();
             }
@@ -89,7 +91,7 @@ namespace rbac.StartupExtensions
                 // 创建权限种子数据
                 var Tenants = new List<Tenant>
                 {
-                    new Tenant { Id="0", TenantName = "FirstSuperAdminTenant", TenantType=TenantTypeEnum.Id, IsDeleted = false, UpdateTime = DateTime.Now,CreateUser ="systemDesigner",CreateUserId="0" }     
+                    new Tenant { Id="0", TenantName = "FirstSuperAdminTenant", TenantType=TenantTypeEnum.Id, IsDeleted = false, UpdateTime = DateTime.Now,CreateUser ="systemDesigner",CreateUserId="0" }
                 };
                 db.Insertable(Tenants).ExecuteCommand();
             }
@@ -116,14 +118,16 @@ namespace rbac.StartupExtensions
                     new RoleMenu { RoleId = roles[0].Id, MenuId="1310000000113"},
                     new RoleMenu { RoleId = roles[0].Id, MenuId="1310000000114"},
                     new RoleMenu { RoleId = roles[0].Id, MenuId="1310000000115"},
-                    new RoleMenu { RoleId = roles[0].Id, MenuId="1310000000116"},
-                    new RoleMenu { RoleId = roles[0].Id, MenuId="1310000000117"},
-                    new RoleMenu { RoleId = roles[0].Id, MenuId="1310000000118"},                    
                     new RoleMenu { RoleId = roles[0].Id, MenuId="1310000000118"},
+                    new RoleMenu { RoleId = roles[0].Id, MenuId="1310000000120"},
+                    new RoleMenu { RoleId = roles[0].Id, MenuId="1310000000121"},
+                    new RoleMenu { RoleId = roles[0].Id, MenuId="1310000000122"},
+                    new RoleMenu { RoleId = roles[0].Id, MenuId="1310000000123"},
+                    new RoleMenu { RoleId = roles[0].Id, MenuId="1310000000124"},
                     new RoleMenu { RoleId = roles[1].Id, MenuId="1310000000101"},
                     new RoleMenu { RoleId = roles[1].Id, MenuId="1310000000111"},
                     new RoleMenu { RoleId = roles[1].Id, MenuId="1310000000112"},
-                    new RoleMenu { RoleId = roles[1].Id, MenuId="1310000000116"}
+                    new RoleMenu { RoleId = roles[1].Id, MenuId="1310000000119"}
                 };
                 db.Insertable(RoleMenus).ExecuteCommand();
             }
@@ -164,8 +168,8 @@ namespace rbac.StartupExtensions
 
             #region sqlsugar依赖注入
             //将sqlsugerclient注入
-            services.AddTransient<ISqlSugarClient>(o=>
-            {return db;});
+            services.AddTransient<ISqlSugarClient>(o =>
+            { return db; });
             #endregion
         }
     }

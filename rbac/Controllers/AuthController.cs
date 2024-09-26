@@ -51,18 +51,7 @@ namespace rbac.Controllers
             return Ok(userInfo);
         }
 
-        /// <summary>
-        /// 获取所有角色
-        /// </summary>
-        /// <param name="userQms"></param>
-        /// <returns></returns>
-        [Authorize]
-        [HttpGet("roles")]
-        public async Task<ActionResult> GetRoleListAsyc()
-        {
-            var result =await _userServices.GetRoleListAsyc();
-            return Ok(result);           
-        }
+        
 
         /// <summary>
         /// 添加用户
@@ -114,7 +103,18 @@ namespace rbac.Controllers
             return Ok(result);           
         }
 
-        
+        /// <summary>
+        /// 获取所有角色
+        /// </summary>
+        /// <param name="userQms"></param>
+        /// <returns></returns>
+        [Authorize]
+        [HttpGet("get-roles")]
+        public async Task<ActionResult> GetRoleListAsyc()
+        {
+            var result =await _userServices.GetRoleListAsyc();
+            return Ok(result);           
+        }
 
         /// <summary>
         /// 更新用户信息以及角色
@@ -154,6 +154,7 @@ namespace rbac.Controllers
             var res = await _userServices.UpdateRolesMenuAsync(roleVm);
             return Ok(res);
         }
+        
         /// <summary>
         /// 增加新的角色
         /// </summary>
