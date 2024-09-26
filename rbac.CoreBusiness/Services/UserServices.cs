@@ -274,14 +274,19 @@ public class UserServices : IScoped
     /// <returns></returns>
     public List<MenuVm> GetMenuVms( List<MenuVm> menus, string pid ="0" )
     {
-        if(menus == null || !menus.Any(w => w.Pid == pid) ) return new List<MenuVm>();
+        //if(menus == null || !menus.Any(w => w.Pid == pid) ) return new List<MenuVm>();
         var res = new List<MenuVm>();
+        //获取所有子节点
         var children = menus.Where(a => a.Pid == pid).ToList();
+        //遍历所有子节点
         foreach (var menu in children)
         {
+            //查看子节点中是否有新的子节点
             menu.Children = GetMenuVms(menus, menu.Id);
+            //将节点挂在树上
             res.Add(menu);
         } 
+        //返回最终结果
         return res;       
     }
     #endregion
