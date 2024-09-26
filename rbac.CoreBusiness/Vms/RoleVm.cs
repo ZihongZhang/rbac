@@ -21,4 +21,10 @@ public class RoleVm
     /// </summary>
     public StatusEnum Status { get; set; } = StatusEnum.Enable;
 
+    /// <summary>
+    /// 菜单ID的list
+    /// </summary>
+    /// <value></value>
+    public List<string> MenuIdList { get; set; } = new List<string>();
+
 }
