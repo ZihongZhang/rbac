@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using System.Text;
 using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -20,13 +21,13 @@ public static class BaseServiceSetup
     public static void AddAuthenticationSetup(this IServiceCollection services)
     {
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(opt=>
+            .AddJwtBearer(opt =>
             {
-                opt.TokenValidationParameters =new TokenValidationParameters
+                opt.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidateIssuer=false,
-                    ValidateAudience=false,
-                    ValidateLifetime= true,
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(AppSetting.GetValue("JWTSettings:TokenKey")))
                 };
             });
@@ -54,6 +55,8 @@ public static class BaseServiceSetup
                         Type = ReferenceType.SecurityScheme
                     }
                 };
+                var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
                 c.AddSecurityDefinition(jwtSecurityScheme.Reference.Id, jwtSecurityScheme);
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
@@ -90,7 +93,7 @@ public static class BaseServiceSetup
                     loggingBuilder.AddSerilog();
                 }
         );
-    } 
+    }
 
     /// <summary>
     /// 设置和添加mapster
@@ -100,5 +103,5 @@ public static class BaseServiceSetup
     {
         services.AddMapster();
         MapsterConfig.Configure();
-    }   
+    }
 }
