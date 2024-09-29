@@ -104,4 +104,19 @@ public static class BaseServiceSetup
         services.AddMapster();
         MapsterConfig.Configure();
     }
+
+    public static void AddCorsPolicy(this IServiceCollection services)
+    {
+        var origin = AppSetting.GetValue("AllowedHost");
+        services.AddCors(options =>
+        {
+            options.AddPolicy("AllowSpecificOrigin",
+                builder => builder.WithOrigins(origin)
+                                  .AllowAnyHeader()
+                                  .AllowAnyMethod()
+                                  .AllowCredentials()
+                );                
+        });
+
+    }
 }

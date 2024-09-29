@@ -65,6 +65,9 @@ namespace rbac
 
                 builder.Services.AddAndConfigMapster();
 
+                //从配置文件中读取跨域请求
+                builder.Services.AddCorsPolicy();
+
                 var app = builder.Build();
 
                 // Configure the HTTP request pipeline.
@@ -77,6 +80,8 @@ namespace rbac
                 app.UseHttpsRedirection();
 
                 app.UseAuthorization();
+
+                app.UseCors("AllowSpecificOrigin");
 
                 app.MapControllers();
 

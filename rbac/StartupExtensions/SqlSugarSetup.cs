@@ -78,7 +78,7 @@ namespace rbac.StartupExtensions
                     new Menu{ CreateUserId="0", Id="1310000000114", Pid=1310000000111, Title="增加", Permission="sysUser:add", Type=MenuTypeEnum.Btn },
                     new Menu{ CreateUserId="0", Id="1310000000115", Pid=1310000000111, Title="删除", Permission="sysUser:delete", Type=MenuTypeEnum.Btn },
                     new Menu{ CreateUserId="0", Id="1310000000118", Pid=1310000000111, Title="重置密码", Permission="sysUser:resetPwd", Type=MenuTypeEnum.Btn },
-                    new Menu{ CreateUserId="0", Id="1310000000120", Pid=1310000000101, Title="账号管理", Path="/system/user", Name="sysRole", Component="/system/role/index", Icon="ele-User", Type=MenuTypeEnum.Menu },
+                    new Menu{ CreateUserId="0", Id="1310000000120", Pid=1310000000101, Title="账号管理", Path="/system/role", Name="sysRole", Component="/system/role/index", Icon="ele-User", Type=MenuTypeEnum.Menu },
                     new Menu{ CreateUserId="0", Id="1310000000121", Pid=1310000000120, Title="添加角色", Permission="sysUser:insertRole", Type=MenuTypeEnum.Btn },
                     new Menu{ CreateUserId="0", Id="1310000000122", Pid=1310000000120, Title="修改角色", Permission="sysUser:updateRole", Type=MenuTypeEnum.Btn },
                     new Menu{ CreateUserId="0", Id="1310000000123", Pid=1310000000120, Title="删除角色", Permission="sysUser:deleteRole", Type=MenuTypeEnum.Btn },
