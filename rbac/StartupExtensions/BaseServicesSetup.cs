@@ -14,6 +14,14 @@ namespace rbac.StartupExtensions;
 
 public static class BaseServiceSetup
 {
+    public static IConfiguration _configuration { get; private set; }
+
+    public static void Initialize(IConfiguration configuration)
+    {
+        _configuration = configuration;
+    }
+
+
     /// <summary>
     /// 添加鉴权功能
     /// </summary>
@@ -104,10 +112,15 @@ public static class BaseServiceSetup
         services.AddMapster();
         MapsterConfig.Configure();
     }
-
+    /// <summary>
+    /// 添加跨域功能
+    /// </summary>
+    /// <param name="services"></param>
     public static void AddCorsPolicy(this IServiceCollection services)
     {
-        var origin = AppSetting.GetValue("AllowedHost");
+        // var origin = AppSetting.GetValue("AllowedHost");
+        var origin = _configuration.GetSection("AllowedHost")
+        .Get<string[]>();
         services.AddCors(options =>
         {
             options.AddPolicy("AllowSpecificOrigin",

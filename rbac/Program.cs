@@ -21,6 +21,9 @@ namespace rbac
             {
                 var builder = WebApplication.CreateBuilder(args);
 
+                //初始化静态类
+                BaseServiceSetup.Initialize(builder.Configuration);
+
                 // 使用 Autofac 作为服务提供程序工厂
                 builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
 

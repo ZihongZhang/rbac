@@ -49,15 +49,22 @@ public class UserServices : IScoped
     /// <exception cref="DomainException"></exception>
     public async Task<string> LoginAsync(LoginDto loginDto)
     {
-        CheckHelper.NotNull(loginDto);
-        User user = await _userRepository.GetSingleAsync(a => a.Username == loginDto.UserName);
-        if (user == null) throw new DomainException("不存在该用户");
-        if (user.Status == StatusEnum.Disable) throw new DomainException("该用户已被禁用");
-        if (string.Equals(user.Password, loginDto.Password))
+        if (string.IsNullOrEmpty(loginDto.Password?.Trim()))
         {
-            return GenerateToken(user);
+            throw new DomainException("密码不能为空!");
         }
-        throw new DomainException("登录失败");
+
+        var user = await _userRepository.GetFirstAsync(a => a.Username == loginDto.UserName)
+                ?? throw new DomainException("不存在该用户");
+
+        if (user.Status == StatusEnum.Disable) throw new DomainException("该用户已被禁用");
+
+        if (!user.Password.Equals(loginDto.Password))
+        {
+            throw new DomainException("登录失败");
+        }
+
+        return GenerateToken(user);
     }
 
     /// <summary>
@@ -67,8 +74,10 @@ public class UserServices : IScoped
     /// <returns></returns>
     public async Task<string> AddUserAsync(UserDto userDto)
     {
-        if (string.IsNullOrWhiteSpace(userDto.Username) || string.IsNullOrWhiteSpace(userDto.Password) || string.IsNullOrWhiteSpace(userDto.Email)) throw new DomainException("用户名或密码或邮箱未填写");
-        CheckHelper.NotNull(userDto, "没有正确传入数据");
+        if (string.IsNullOrWhiteSpace(userDto.Username)
+        || string.IsNullOrWhiteSpace(userDto.Password)
+        || string.IsNullOrWhiteSpace(userDto.Email))
+            throw new DomainException("用户名或密码或邮箱未填写");
 
         //使用配置好的mapster来转换类型
         var user = userDto.Adapt<User>();
@@ -319,7 +328,7 @@ public class UserServices : IScoped
     /// </summary>
     /// <param name="user"></param>
     /// <returns></returns>
-    public string GenerateToken(User user)
+    private string GenerateToken(User user)
     {
         const string ClaimTypeTenantId = "tenantId";
         var Claims = new List<Claim>
@@ -348,7 +357,7 @@ public class UserServices : IScoped
     /// <param name="menus"></param>
     /// <param name="pid"></param>
     /// <returns></returns>
-    public List<MenuVm> GetMenuVms(List<MenuVm> menus, string pid = "0")
+    private List<MenuVm> GetMenuVms(List<MenuVm> menus, string pid = "0")
     {
         //if (menus == null || !menus.Any(w => w.Pid == pid)) return new List<MenuVm>();
         var res = new List<MenuVm>();
@@ -361,9 +370,9 @@ public class UserServices : IScoped
             menu.Children = GetMenuVms(menus, menu.Id);
             //将节点挂在树上
             res.Add(menu);
-        } 
+        }
         //返回最终结果
-        return res;       
+        return res;
     }
     #endregion
 
@@ -373,7 +382,7 @@ public class UserServices : IScoped
     /// </summary>
     /// <param name="user"></param>
     /// <param name="userDto"></param>
-    public void AddUserNavigationRole(ref User user, UserDto userDto)
+    private void AddUserNavigationRole(ref User user, UserDto userDto)
     {
         //初始化列表因为导航属性必须不能初始化
         user.RoleList = new List<Role>();
