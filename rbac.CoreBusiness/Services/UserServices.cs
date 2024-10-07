@@ -2,12 +2,14 @@ using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Castle.Core.Logging;
 using Mapster;
 using MapsterMapper;
 using Masuit.Tools;
 using Masuit.Tools.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using rbac.CoreBusiness.Dtos;
 using rbac.CoreBusiness.Qms;
@@ -25,17 +27,20 @@ namespace rbac.CoreBusiness.Services;
 
 public class UserServices : IScoped
 {
+    private readonly ILogger<UserServices> _logger;
+
     // private readonly IMapper _mapper;
 
     public Repository<User> _userRepository { get; }
     public ISqlSugarClient _db { get; }
     public IHttpContextAccessor _httpContextAccessor { get; }
 
-    public UserServices(Repository<User> repository, ISqlSugarClient db, IHttpContextAccessor httpContextAccessor)
+    public UserServices(Repository<User> repository, ISqlSugarClient db, IHttpContextAccessor httpContextAccessor,ILogger<UserServices> logger)
     {
         _userRepository = repository;
         _db = db;
         _httpContextAccessor = httpContextAccessor;
+        _logger = logger;
         //_mapper = mapper;
     }
 
@@ -49,6 +54,8 @@ public class UserServices : IScoped
     /// <exception cref="DomainException"></exception>
     public async Task<string> LoginAsync(LoginDto loginDto)
     {
+        _logger.LogInformation("登录信息：{@loginDto}", loginDto);
+
         if (string.IsNullOrEmpty(loginDto.Password?.Trim()))
         {
             throw new DomainException("密码不能为空!");
@@ -74,6 +81,7 @@ public class UserServices : IScoped
     /// <returns></returns>
     public async Task<string> AddUserAsync(UserDto userDto)
     {
+        _logger.LogInformation("登录信息：{@userDto}", userDto);
         if (string.IsNullOrWhiteSpace(userDto.Username)
         || string.IsNullOrWhiteSpace(userDto.Password)
         || string.IsNullOrWhiteSpace(userDto.Email))

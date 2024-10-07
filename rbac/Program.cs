@@ -8,6 +8,7 @@ using rbac.Infra;
 using rbac.Repository.Base;
 using rbac.StartupExtensions;
 using Serilog;
+using FreeScheduler;
 
 namespace rbac
 {
@@ -57,6 +58,9 @@ namespace rbac
 
                 //添加筛选器
                 builder.Services.AddFilterSetup();
+                
+                //增加定时任务
+                builder.Services.AddFreeSchedulerScheduler();
 
                 //使用serilog替换原生log
                 Log.Logger = new LoggerConfiguration()
@@ -78,7 +82,8 @@ namespace rbac
                 app.UseSwagger();
                 app.UseSwaggerUI();
 
-
+                
+           
                 app.UseHttpsRedirection();
 
                 app.UseAuthorization();
@@ -86,6 +91,8 @@ namespace rbac
                 app.UseCors("AllowSpecificOrigin");
 
                 app.MapControllers();
+
+                app.UseFreeSchedulerUI("/freescheduler/");
 
                 app.Run();
             }

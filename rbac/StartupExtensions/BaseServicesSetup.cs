@@ -1,6 +1,7 @@
 using System;
 using System.Reflection;
 using System.Text;
+using FreeScheduler;
 using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -128,8 +129,26 @@ public static class BaseServiceSetup
                                   .AllowAnyHeader()
                                   .AllowAnyMethod()
                                   .AllowCredentials()
-                );                
+                );
         });
 
     }
+
+    public static void AddFreeSchedulerScheduler(this IServiceCollection services)
+    {
+        Scheduler scheduler = new FreeSchedulerBuilder()
+            .OnExecuting(task =>
+            {
+                Console.WriteLine($"[{DateTime.Now.ToString("HH:mm:ss.fff")}] {task.Topic} 被执行");
+                switch (task.Topic)
+                {
+                    case "武林大会": Console.WriteLine($"[{DateTime.Now.ToString("HH:mm:ss.fff")}] 已经 被执行"); break;
+                    case "攻城活动": Console.WriteLine($"[{DateTime.Now.ToString("HH:mm:ss.fff")}] {task.Topic} 被执行"); break;
+                }
+            })
+            .Build();
+        services.AddSingleton(scheduler);
+    }
+
+
 }
