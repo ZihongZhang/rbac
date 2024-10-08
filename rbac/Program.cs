@@ -9,6 +9,7 @@ using rbac.Repository.Base;
 using rbac.StartupExtensions;
 using Serilog;
 using FreeScheduler;
+using Autofac.Core;
 
 namespace rbac
 {
@@ -24,6 +25,7 @@ namespace rbac
 
                 //初始化静态类
                 BaseServiceSetup.Initialize(builder.Configuration);
+                SqlSugarSetup.Initialize(builder.Configuration);
 
                 // 使用 Autofac 作为服务提供程序工厂
                 builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
@@ -53,6 +55,7 @@ namespace rbac
                 //将配置文件装到静态类中，从而在静态类中可以获取静态文件 
                 builder.Services.AddSingleton(new AppSetting(builder.Configuration));
 
+                builder.Services.AddHttpContextAccessor();
                 //添加sqlsugar设置并创建数据库
                 builder.Services.AddSqlsugarSetup();
 

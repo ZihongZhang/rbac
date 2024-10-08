@@ -60,10 +60,16 @@ public class UserServices : IScoped
         {
             throw new DomainException("密码不能为空!");
         }
-
-        var user = await _userRepository.GetFirstAsync(a => a.Username == loginDto.UserName)
-                ?? throw new DomainException("不存在该用户");
-
+        User user = null;
+        
+        lock (_db) 
+        {
+            //var user = await _db.Queryable<User>().Where(a => a.Username == loginDto.UserName).FirstAsync()
+            //    ?? throw new DomainException("不存在该用户");
+            user =  _db.Queryable<User>().Where(a => a.Username == loginDto.UserName).First()
+               ?? throw new DomainException("不存在该用户");
+           
+        }
         if (user.Status == StatusEnum.Disable) throw new DomainException("该用户已被禁用");
 
         if (!user.Password.Equals(loginDto.Password))

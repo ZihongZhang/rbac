@@ -10,16 +10,34 @@ namespace rbac.StartupExtensions
 {
     public static class SqlSugarSetup
     {
+        public static IConfiguration _configuration { get; private set; }
+
+        public static void Initialize(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
         public static void AddSqlsugarSetup(this IServiceCollection services)
         {
             if (services == null) throw new ArgumentNullException(nameof(services));
+            var dbs = _configuration["DBS:0:Connection"];
+            string dbTypeString = _configuration["DBS:0:DBType"];
+            DbType type =DbType.Sqlite;
+            if (int.TryParse(dbTypeString, out int dbTypeValue))
+            {
+                // 2. 将整数值转换为 DbType 枚举
+                type = (DbType)dbTypeValue;
+            }
+            else
+            {
+                throw new Exception("数据库类型配置错误");
+            }
 
             #region 设置数据库连接
             //添加数据库连接
             SqlSugarClient db = new SqlSugarClient(new ConnectionConfig()
             {
-                ConnectionString = "datasource=demo.db",
-                DbType = DbType.Sqlite,
+                ConnectionString = dbs,
+                DbType = type,
                 IsAutoCloseConnection = true,
                 ConfigureExternalServices = new ConfigureExternalServices
                 {
