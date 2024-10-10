@@ -99,7 +99,7 @@ public class UserServices : IScoped
         //查看是否有重复用户名或者不存在对应的租户
         var username = _userRepository.GetFirst(a => a.Username == user.Username);
         if (username != null) throw new DomainException("用户名已存在,请更换用户名");
-        var tenantId = _db.Queryable<Tenant>().Where(i => i.Id == user.TenantId).Count();
+        var tenantId = await _db.Queryable<Tenant>().Where(i => i.Id == user.TenantId).CountAsync();
         if (tenantId == 0) throw new DomainException("租户id不存在");
 
 
@@ -146,7 +146,7 @@ public class UserServices : IScoped
         CheckHelper.NotNull(await _userRepository.GetByIdAsync(userId), "当前用户信息不存在");
 
         //使用sqlsugarClient获取数据
-        var userList = await _db.Queryable<User>()
+        var userList =await _db.Queryable<User>()
         .WhereIF(!string.IsNullOrWhiteSpace(userQms.Name), it => it.Username.Contains(userQms.Name ?? "1"))
         .OrderBy(userQms.SortBy)
         .Includes(x => x.RoleList)

@@ -21,7 +21,7 @@ namespace rbac.StartupExtensions
             if (services == null) throw new ArgumentNullException(nameof(services));
             var dbs = _configuration["DBS:0:Connection"];
             string dbTypeString = _configuration["DBS:0:DBType"];
-            DbType type =DbType.Sqlite;
+            DbType type = DbType.Sqlite;
             if (int.TryParse(dbTypeString, out int dbTypeValue))
             {
                 // 2. 将整数值转换为 DbType 枚举
@@ -34,11 +34,15 @@ namespace rbac.StartupExtensions
 
             #region 设置数据库连接
             //添加数据库连接
-            SqlSugarClient db = new SqlSugarClient(new ConnectionConfig()
+            SqlSugarScope db = new SqlSugarScope(new ConnectionConfig()
             {
                 ConnectionString = dbs,
                 DbType = type,
                 IsAutoCloseConnection = true,
+                MoreSettings = new ConnMoreSettings()
+                {
+                    DisableNvarchar = true //这里设置为true
+                },
                 ConfigureExternalServices = new ConfigureExternalServices
                 {
                     //打开以下注释来让所有的表可为空
@@ -186,7 +190,7 @@ namespace rbac.StartupExtensions
 
             #region sqlsugar依赖注入
             //将sqlsugerclient注入
-            services.AddTransient<ISqlSugarClient>(o =>
+            services.AddSingleton<ISqlSugarClient>(o =>
             { return db; });
             #endregion
         }
