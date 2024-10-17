@@ -1,6 +1,7 @@
 ﻿using rbac.Infra.Helper;
 using rbac.Modals.Enum;
 using rbac.Modals.Models;
+using rbac.Modals.Models.AiRelatedModel;
 using SqlSugar;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -80,7 +81,7 @@ namespace rbac.StartupExtensions
 
             #region 初始化表并加入种子数据
             db.DbMaintenance.CreateDatabase(Directory.GetCurrentDirectory());
-            db.CodeFirst.SetStringDefaultLength(200).InitTables(typeof(Menu), typeof(Role), typeof(RoleMenu), typeof(Tenant), typeof(User), typeof(UserRole));
+            db.CodeFirst.SetStringDefaultLength(200).InitTables(typeof(Menu), typeof(Role), typeof(RoleMenu), typeof(Tenant), typeof(User), typeof(UserRole),typeof(MessageEntry),typeof(AiHistoryMessage));
 
             //提前定义来然后面可以拿到数据
             List<Menu>? Menus = null;
