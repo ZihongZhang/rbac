@@ -13,6 +13,7 @@ public class MessageEntry: ModelBaseId
     /// <summary>
     /// 发送内容
     /// </summary>
+    [SugarColumn(ColumnDataType ="text")]
     public string? content { get; set; }
     /// <summary>
     /// 创建时间

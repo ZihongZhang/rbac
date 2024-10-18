@@ -29,12 +29,6 @@ namespace rbac.Controllers
             _logger = logger;
             _aiService = aiService;
         }
-        [HttpGet("json")]
-        public async Task<ActionResult> ai(string message)
-        {
-            var a=await _aiService.getResponse(message);
-            return Ok(a);
-        }
 
         /// <summary>
         /// 登录
