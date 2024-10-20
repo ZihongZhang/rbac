@@ -65,6 +65,9 @@ namespace rbac
                 //增加定时任务
                 builder.Services.AddFreeSchedulerScheduler();
 
+
+                builder.WebHost.UseUrls("http://192.168.18.32:5234","http://localhost:5234");
+
                 //使用serilog替换原生log
                 Log.Logger = new LoggerConfiguration()
                             .ReadFrom.Configuration(AppSetting.Configuration)

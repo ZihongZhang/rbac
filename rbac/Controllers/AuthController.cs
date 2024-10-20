@@ -19,13 +19,21 @@ namespace rbac.Controllers
         private readonly ILogger<AuthController> _logger;
 
         public Repository<User> Repository { get; }
+        public AiService _aiService { get; }
 
-        public AuthController(ISqlSugarClient sqlSugar,Repository<User> repository,UserServices userServices,ILogger<AuthController> logger)
+        public AuthController(ISqlSugarClient sqlSugar,Repository<User> repository,UserServices userServices,ILogger<AuthController> logger,AiService aiService)
         {
             _db = sqlSugar;
             Repository = repository;
             _userServices = userServices;
             _logger = logger;
+            _aiService = aiService;
+        }
+        [HttpGet("json")]
+        public async Task<ActionResult> ai(string message)
+        {
+            var a=await _aiService.getResponse(message);
+            return Ok(a);
         }
 
         /// <summary>

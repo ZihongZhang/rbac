@@ -1,6 +1,7 @@
 ﻿using rbac.Infra.Helper;
 using rbac.Modals.Enum;
 using rbac.Modals.Models;
+using rbac.Modals.Models.AiRelatedModel;
 using SqlSugar;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -21,7 +22,7 @@ namespace rbac.StartupExtensions
             if (services == null) throw new ArgumentNullException(nameof(services));
             var dbs = _configuration["DBS:0:Connection"];
             string dbTypeString = _configuration["DBS:0:DBType"];
-            DbType type =DbType.Sqlite;
+            DbType type = DbType.Sqlite;
             if (int.TryParse(dbTypeString, out int dbTypeValue))
             {
                 // 2. 将整数值转换为 DbType 枚举
@@ -34,11 +35,15 @@ namespace rbac.StartupExtensions
 
             #region 设置数据库连接
             //添加数据库连接
-            SqlSugarClient db = new SqlSugarClient(new ConnectionConfig()
+            SqlSugarScope db = new SqlSugarScope(new ConnectionConfig()
             {
                 ConnectionString = dbs,
                 DbType = type,
                 IsAutoCloseConnection = true,
+                MoreSettings = new ConnMoreSettings()
+                {
+                    DisableNvarchar = true //这里设置为true
+                },
                 ConfigureExternalServices = new ConfigureExternalServices
                 {
                     //打开以下注释来让所有的表可为空
@@ -76,7 +81,7 @@ namespace rbac.StartupExtensions
 
             #region 初始化表并加入种子数据
             db.DbMaintenance.CreateDatabase(Directory.GetCurrentDirectory());
-            db.CodeFirst.SetStringDefaultLength(200).InitTables(typeof(Menu), typeof(Role), typeof(RoleMenu), typeof(Tenant), typeof(User), typeof(UserRole));
+            db.CodeFirst.SetStringDefaultLength(200).InitTables(typeof(Menu), typeof(Role), typeof(RoleMenu), typeof(Tenant), typeof(User), typeof(UserRole),typeof(MessageEntry),typeof(AiHistoryMessage));
 
             //提前定义来然后面可以拿到数据
             List<Menu>? Menus = null;
@@ -186,7 +191,7 @@ namespace rbac.StartupExtensions
 
             #region sqlsugar依赖注入
             //将sqlsugerclient注入
-            services.AddTransient<ISqlSugarClient>(o =>
+            services.AddSingleton<ISqlSugarClient>(o =>
             { return db; });
             #endregion
         }

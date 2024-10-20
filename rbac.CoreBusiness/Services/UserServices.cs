@@ -9,6 +9,7 @@ using Masuit.Tools;
 using Masuit.Tools.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using rbac.CoreBusiness.Dtos;
@@ -28,19 +29,20 @@ namespace rbac.CoreBusiness.Services;
 public class UserServices : IScoped
 {
     private readonly ILogger<UserServices> _logger;
-
+    private readonly IConfiguration configuration;
     // private readonly IMapper _mapper;
 
     public Repository<User> _userRepository { get; }
     public ISqlSugarClient _db { get; }
     public IHttpContextAccessor _httpContextAccessor { get; }
 
-    public UserServices(Repository<User> repository, ISqlSugarClient db, IHttpContextAccessor httpContextAccessor,ILogger<UserServices> logger)
+    public UserServices(Repository<User> repository, ISqlSugarClient db, IHttpContextAccessor httpContextAccessor, ILogger<UserServices> logger, IConfiguration configuration)
     {
         _userRepository = repository;
         _db = db;
         _httpContextAccessor = httpContextAccessor;
         _logger = logger;
+        this.configuration = configuration;
         //_mapper = mapper;
     }
 
@@ -61,14 +63,14 @@ public class UserServices : IScoped
             throw new DomainException("密码不能为空!");
         }
         User user = null;
-        
-        lock (_db) 
+
+        lock (_db)
         {
             //var user = await _db.Queryable<User>().Where(a => a.Username == loginDto.UserName).FirstAsync()
             //    ?? throw new DomainException("不存在该用户");
-            user =  _db.Queryable<User>().Where(a => a.Username == loginDto.UserName).First()
+            user = _db.Queryable<User>().Where(a => a.Username == loginDto.UserName).First()
                ?? throw new DomainException("不存在该用户");
-           
+
         }
         if (user.Status == StatusEnum.Disable) throw new DomainException("该用户已被禁用");
 
@@ -99,7 +101,7 @@ public class UserServices : IScoped
         //查看是否有重复用户名或者不存在对应的租户
         var username = _userRepository.GetFirst(a => a.Username == user.Username);
         if (username != null) throw new DomainException("用户名已存在,请更换用户名");
-        var tenantId = _db.Queryable<Tenant>().Where(i => i.Id == user.TenantId).Count();
+        var tenantId = await _db.Queryable<Tenant>().Where(i => i.Id == user.TenantId).CountAsync();
         if (tenantId == 0) throw new DomainException("租户id不存在");
 
 
@@ -158,17 +160,29 @@ public class UserServices : IScoped
         var formattedRes = new PagedList<UserVm>(userDtoList, userQms.PageNum, userQms.PageSize, totalCount);
         return formattedRes;
     }
-
+    /// <summary>
+    /// 获取用户菜单
+    /// </summary>
+    /// <returns></returns>
     public async Task<List<MenuVm>> GetMenuList()
     {
         var userId = _httpContextAccessor?.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         CheckHelper.NotNull(userId, "当前用户不存在");
         //获取当前用户对应的权限
-        var roleIds = await _db.Queryable<UserRole>().Where(a => a.UserId == userId).Select(a => a.RoleId).ToListAsync();
+        var roleIds = await _db.Queryable<UserRole>()
+                               .Where(a => a.UserId == userId)
+                               .Select(a => a.RoleId)
+                               .ToListAsync();
         CheckHelper.NotNull(roleIds, "当前用户不存在对应的角色");
-        var MenuIds = await _db.Queryable<RoleMenu>().Where(a => roleIds.Contains(a.RoleId ?? "0")).Select(a => a.MenuId).Distinct().ToListAsync();
+        var MenuIds = await _db.Queryable<RoleMenu>()
+                               .Where(a => roleIds.Contains(a.RoleId ?? "0"))
+                               .Select(a => a.MenuId)
+                               .Distinct()
+                               .ToListAsync();
         CheckHelper.NotNull(MenuIds, "当前角色没有任何权限");
-        var menu = await _db.Queryable<Menu>().Where(a => MenuIds.Contains(a.Id)).ToListAsync();
+        var menu = await _db.Queryable<Menu>()
+                            .Where(a => MenuIds.Contains(a.Id))
+                            .ToListAsync();
 
         //先转换成listvm
         var menuVmList = menu.Adapt<List<MenuVm>>();
@@ -191,16 +205,16 @@ public class UserServices : IScoped
 
         //更新用户以及用户角色关系表
         var result = await _db.UpdateNav(updateUser, new UpdateNavRootOptions()
-        {
-            IsIgnoreAllNullColumns = true
-        })
+                        {
+                            IsIgnoreAllNullColumns = true
+                        })
                         .Include(a => a.RoleList, new UpdateNavOptions
                         {
                             ManyToManyIsUpdateA = true
                         })
                        .ExecuteCommandAsync();
         if (!result) throw new DomainException("更新失败，请查看更新数据格式是否正确");
-        return "插入成功";
+        return "更新成功";
     }
 
     /// <summary>
@@ -214,7 +228,9 @@ public class UserServices : IScoped
         var userId = _httpContextAccessor?.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         CheckHelper.NotNull(userId, "当前用户不存在");
         if (string.IsNullOrWhiteSpace(userVm.Username)) throw new DomainException("用户名未填写");
-        var userCount = _userRepository.AsQueryable().Where(user => user.Id == userVm.Id).Count();
+        var userCount = _userRepository.AsQueryable()
+                                       .Where(user => user.Id == userVm.Id)
+                                       .Count();
         if (userCount == 0) throw new DomainException("删除用户不存在");
         var deleteUser = userVm.Adapt<User>();
         //删除
@@ -242,7 +258,9 @@ public class UserServices : IScoped
         var userId = _httpContextAccessor?.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         CheckHelper.NotNull(userId, "当前用户不存在");
 
-        var user = await _db.Queryable<User>().Includes(t => t.RoleList).FirstAsync(a => a.Id == userId);
+        var user = await _db.Queryable<User>()
+                            .Includes(t => t.RoleList)
+                            .FirstAsync(a => a.Id == userId);
         CheckHelper.NotNull(user, "当前用户信息不存在");
         var info = user.Adapt<InfoVm>();
         return info;
@@ -273,7 +291,8 @@ public class UserServices : IScoped
         CheckHelper.NotNull(userId, "当前用户不存在");
         if (string.IsNullOrWhiteSpace(roleVms.RoleName) || string.IsNullOrWhiteSpace(roleVms.Id) || string.IsNullOrWhiteSpace(roleVms.ParentRoleId))
             throw new DomainException("角色信息未填写完整");
-        var userExist = await _db.Queryable<User>().AnyAsync(a => a.Id == userId);
+        var userExist = await _db.Queryable<User>()
+                                 .AnyAsync(a => a.Id == userId);
         if (!userExist) throw new DomainException("当前用户不存在");
         var roleExist = await _db.Queryable<Role>().AnyAsync(a => a.Id == roleVms.Id);
         if (!roleExist) throw new DomainException("当前用户不存在");
@@ -299,7 +318,8 @@ public class UserServices : IScoped
     {
         var userId = _httpContextAccessor?.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         CheckHelper.NotNull(userId, "当前用户不存在");
-        var userExist = await _db.Queryable<User>().AnyAsync(a => a.Id == userId);
+        var userExist = await _db.Queryable<User>()
+                                 .AnyAsync(a => a.Id == userId);
         if (!userExist) throw new DomainException("当前用户不存在");
         if (string.IsNullOrWhiteSpace(roleVm.RoleName) || string.IsNullOrWhiteSpace(roleVm.Id) || string.IsNullOrWhiteSpace(roleVm.ParentRoleId))
             throw new DomainException("角色信息未填写完整");
@@ -319,7 +339,8 @@ public class UserServices : IScoped
     {
         var userId = _httpContextAccessor?.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         CheckHelper.NotNull(userId, "当前用户不存在");
-        var userExist = await _db.Queryable<User>().AnyAsync(a => a.Id == userId);
+        var userExist = await _db.Queryable<User>()
+                                 .AnyAsync(a => a.Id == userId);
         if (!userExist) throw new DomainException("当前用户不存在");
         if (string.IsNullOrWhiteSpace(roleVm.RoleName) || string.IsNullOrWhiteSpace(roleVm.Id) || string.IsNullOrWhiteSpace(roleVm.ParentRoleId))
             throw new DomainException("角色信息未填写完整");
