@@ -46,7 +46,7 @@ namespace rbac.Controllers
         /// 获取当前用户信息
         /// </summary>
         /// <returns></returns>
-        [HttpPost("info")]
+        [HttpGet("info")]
         public async Task<ActionResult<InfoVm>> GetCurrentUserInfo()
         {
             var userInfo = await _userServices.GetInfoAsync();
