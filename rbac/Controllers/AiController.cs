@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using rbac.CoreBusiness.Dtos.AiDtos;
 using rbac.CoreBusiness.Services;
 
 namespace rbac.Controllers
@@ -19,10 +20,10 @@ namespace rbac.Controllers
         /// <param name="message"></param>
         /// <returns></returns>
         [Authorize]
-        [HttpGet("get-message")]
-        public async Task<ActionResult> getMessage(string message)
+        [HttpPost("get-message")]
+        public async Task<ActionResult> getMessage(AiMessageDto message)
         {
-            var a=await _aiService.getResponse(message);
+            var a=await _aiService.getResponse(message.Message);
             return Ok(a);
         }
         /// <summary>
@@ -31,10 +32,10 @@ namespace rbac.Controllers
         /// <param name="message"></param>
         /// <returns></returns>
         [Authorize]
-        [HttpGet("get-histor-message")]
+        [HttpGet("get-history-message")]
         public async Task<ActionResult> getHistoryMessage()
         {
-            var a=await _aiService.getHistoryMessagAsync();
+            var a=await _aiService.getHistoryMessageAsync();
             return Ok(a);
         }
         /// <summary>

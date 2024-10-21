@@ -122,7 +122,7 @@ public class AiService : IScoped
     /// 获取历史信息
     /// </summary>
     /// <returns></returns>
-    public async Task<List<MessageEntryDto>> getHistoryMessagAsync()
+    public async Task<List<MessageEntryDto>> getHistoryMessageAsync()
     {
         var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         var history = await _db.Queryable<AiHistoryMessage>()

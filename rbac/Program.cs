@@ -86,7 +86,10 @@ namespace rbac
                 // Configure the HTTP request pipeline.
 
                 app.UseSwagger();
-                app.UseSwaggerUI();
+                app.UseSwaggerUI(c => 
+                {
+                    c.ConfigObject.AdditionalItems.Add("persistAuthorization","true");
+                });
 
                 
            
