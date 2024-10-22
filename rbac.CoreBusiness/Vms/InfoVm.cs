@@ -13,12 +13,12 @@ public class InfoVm
     /// <summary>
     /// 登录用户名
     /// </summary>
-    public required string Username { get; set; }
+    public  string Username { get; set; }
 
     /// <summary>
     /// 用户邮箱不可为空
     /// </summary>
-    public required string Email { get; set; }
+    public string Email { get; set; }
 
     /// <summary>
     /// 用户手机
@@ -38,6 +38,6 @@ public class InfoVm
     /// <summary>
     /// 角色列表
     /// </summary>
-    public List<RoleVm> RoleList { get; set; } = new List<RoleVm>();
+    public List<InfoRoleVm> RoleList { get; set; } = new List<InfoRoleVm>();
 
 }

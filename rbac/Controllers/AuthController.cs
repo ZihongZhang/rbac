@@ -79,6 +79,17 @@ namespace rbac.Controllers
             var result = await _userServices.GetAllUsersAsync();
             return Ok(result);            
         }
+        /// <summary>
+        /// 获取全部用户的excel信息
+        /// </summary>
+        /// <returns></returns>
+        [Authorize]
+        [HttpGet("get-all-users-execel")]
+        public async Task<ActionResult> GetAllUsersExcel(string filename)
+        {
+            var result = await _userServices.GetAllUsersExcelAsync();
+            return File(result, "application/ms-excel", $"{filename}.xlsx");            
+        }
 
         /// <summary>
         /// 获取该角色的菜单

@@ -1,8 +1,6 @@
-using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Castle.Core.Logging;
 using Mapster;
 using MapsterMapper;
 using Masuit.Tools;
@@ -136,6 +134,19 @@ public class UserServices : IScoped
     }
 
     /// <summary>
+    /// 导出所有用户的excel
+    /// </summary>
+    /// <param name="filename"></param>
+    /// <returns></returns>
+    public async Task<byte[]> GetAllUsersExcelAsync()
+    {
+        var user = await _db.Queryable<User>().Includes(a => a.RoleList).ToListAsync();
+        var userDto = user.Adapt<List<UserVm>>();
+        var file = ExcelHelper.SetSimpleExcel(userDto);
+        return file;      
+    }
+
+    /// <summary>
     /// 获取分页User
     /// </summary>
     /// <param name="userQms"></param>
@@ -205,9 +216,9 @@ public class UserServices : IScoped
 
         //更新用户以及用户角色关系表
         var result = await _db.UpdateNav(updateUser, new UpdateNavRootOptions()
-                        {
-                            IsIgnoreAllNullColumns = true
-                        })
+        {
+            IsIgnoreAllNullColumns = true
+        })
                         .Include(a => a.RoleList, new UpdateNavOptions
                         {
                             ManyToManyIsUpdateA = true
@@ -263,6 +274,8 @@ public class UserServices : IScoped
                             .FirstAsync(a => a.Id == userId);
         CheckHelper.NotNull(user, "当前用户信息不存在");
         var info = user.Adapt<InfoVm>();
+        var infoRoleVms = user.RoleList.Adapt<List<InfoRoleVm>>();
+        info.RoleList.AddRange(infoRoleVms);
         return info;
     }
     #endregion
@@ -355,6 +368,8 @@ public class UserServices : IScoped
         throw new DomainException("删除失败");
     }
 
+    
+
 
     #endregion
     #region 通用方法    
@@ -409,6 +424,8 @@ public class UserServices : IScoped
         //返回最终结果
         return res;
     }
+
+
     #endregion
 
     #region 废弃方法
