@@ -12,7 +12,7 @@ public class Menu : ModelBase
     /// 父Id
     /// </summary>
     [SugarColumn(ColumnDescription = "父Id",IsNullable =true)]
-    public long Pid { get; set; }
+    public string Pid { get; set; }
 
     /// <summary>
     /// 菜单类型（1目录 2菜单 3按钮）

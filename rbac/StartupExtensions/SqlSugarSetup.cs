@@ -94,18 +94,19 @@ namespace rbac.StartupExtensions
                 // 创建权限种子数据
                 Menus = new List<Menu>
                 {
-                    new Menu{ CreateUserId="0", Id="1310000000101", Pid=0, Title="系统管理", Path="/system", Name="system", Component="Layout", Icon="ele-Setting", Type=MenuTypeEnum.Dir },
-                    new Menu{ CreateUserId="0", Id="1310000000111", Pid=1310000000101, Title="账号管理", Path="/system/user", Name="sysUser", Component="/system/user/index", Icon="ele-User", Type=MenuTypeEnum.Menu },
-                    new Menu{ CreateUserId="0", Id="1310000000112", Pid=1310000000111, Title="查询", Permission="sysUser:page", Type=MenuTypeEnum.Btn },
-                    new Menu{ CreateUserId="0", Id="1310000000113", Pid=1310000000111, Title="编辑", Permission="sysUser:update", Type=MenuTypeEnum.Btn },
-                    new Menu{ CreateUserId="0", Id="1310000000114", Pid=1310000000111, Title="增加", Permission="sysUser:add", Type=MenuTypeEnum.Btn },
-                    new Menu{ CreateUserId="0", Id="1310000000115", Pid=1310000000111, Title="删除", Permission="sysUser:delete", Type=MenuTypeEnum.Btn },
-                    new Menu{ CreateUserId="0", Id="1310000000118", Pid=1310000000111, Title="重置密码", Permission="sysUser:resetPwd", Type=MenuTypeEnum.Btn },
-                    new Menu{ CreateUserId="0", Id="1310000000120", Pid=1310000000101, Title="账号管理", Path="/system/role", Name="sysRole", Component="/system/role/index", Icon="ele-User", Type=MenuTypeEnum.Menu },
-                    new Menu{ CreateUserId="0", Id="1310000000121", Pid=1310000000120, Title="添加角色", Permission="sysUser:insertRole", Type=MenuTypeEnum.Btn },
-                    new Menu{ CreateUserId="0", Id="1310000000122", Pid=1310000000120, Title="修改角色", Permission="sysUser:updateRole", Type=MenuTypeEnum.Btn },
-                    new Menu{ CreateUserId="0", Id="1310000000123", Pid=1310000000120, Title="删除角色", Permission="sysUser:deleteRole", Type=MenuTypeEnum.Btn },
-                    new Menu{ CreateUserId="0", Id="1310000000119", Pid=1310000000120, Title="查询角色", Permission="sysUser:getRole", Type=MenuTypeEnum.Btn }
+                    new Menu{ CreateUserId="0", Id="1310000000101", Pid="0", Title="系统管理", Path="/system", Name="system", Component="Layout", Icon="ele-Setting", Type=MenuTypeEnum.Dir },
+                    new Menu{ CreateUserId="0", Id="1310000000111", Pid="1310000000101", Title="账号管理", Path="/system/user", Name="sysUser", Component="/system/user/index", Icon="ele-User", Type=MenuTypeEnum.Menu },
+                    new Menu{ CreateUserId="0", Id="1310000000112", Pid="1310000000111", Title="查询用户", Permission="sysUser:page", Type=MenuTypeEnum.Btn },
+                    new Menu{ CreateUserId="0", Id="1310000000113", Pid="1310000000111", Title="编辑用户", Permission="sysUser:update", Type=MenuTypeEnum.Btn },
+                    new Menu{ CreateUserId="0", Id="1310000000114", Pid="1310000000111", Title="增加用户", Permission="sysUser:add", Type=MenuTypeEnum.Btn },
+                    new Menu{ CreateUserId="0", Id="1310000000115", Pid="1310000000111", Title="删除用户", Permission="sysUser:delete", Type=MenuTypeEnum.Btn },
+                    new Menu{ CreateUserId="0", Id="1310000000118", Pid="1310000000111", Title="重置密码", Permission="sysUser:resetPwd", Type=MenuTypeEnum.Btn },
+                    new Menu{ CreateUserId="0", Id="1310000000120", Pid="1310000000101", Title="角色管理", Path="/system/role", Name="sysRole", Component="/system/role/index", Icon="ele-User", Type=MenuTypeEnum.Menu },
+                    new Menu{ CreateUserId="0", Id="1310000000125", Pid="1310000000120", Title="查询角色", Permission="sysRole:page", Type=MenuTypeEnum.Btn },
+                    new Menu{ CreateUserId="0", Id="1310000000121", Pid="1310000000120", Title="添加角色", Permission="sysRole:insertRole", Type=MenuTypeEnum.Btn },
+                    new Menu{ CreateUserId="0", Id="1310000000122", Pid="1310000000120", Title="修改角色", Permission="sysRole:updateRole", Type=MenuTypeEnum.Btn },
+                    new Menu{ CreateUserId="0", Id="1310000000123", Pid="1310000000120", Title="删除角色", Permission="sysRole:deleteRole", Type=MenuTypeEnum.Btn },
+                    new Menu{ CreateUserId="0", Id="1310000000119", Pid="1310000000120", Title="查询角色", Permission="sysRole:getRole", Type=MenuTypeEnum.Btn }
                 };
                 db.Insertable(Menus).ExecuteCommand();
             }
@@ -146,7 +147,7 @@ namespace rbac.StartupExtensions
                     new RoleMenu { RoleId = roles[0].Id, MenuId="1310000000121"},
                     new RoleMenu { RoleId = roles[0].Id, MenuId="1310000000122"},
                     new RoleMenu { RoleId = roles[0].Id, MenuId="1310000000123"},
-                    new RoleMenu { RoleId = roles[0].Id, MenuId="1310000000124"},
+                    new RoleMenu { RoleId = roles[0].Id, MenuId="1310000000125"},
                     new RoleMenu { RoleId = roles[1].Id, MenuId="1310000000101"},
                     new RoleMenu { RoleId = roles[1].Id, MenuId="1310000000111"},
                     new RoleMenu { RoleId = roles[1].Id, MenuId="1310000000112"},

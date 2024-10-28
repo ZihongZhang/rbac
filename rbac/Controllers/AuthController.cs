@@ -175,7 +175,7 @@ namespace rbac.Controllers
         /// <returns></returns>
         [Authorize]
         [HttpPost("add-role")]
-        public async Task<ActionResult> AddRoleAsync(RoleVm roleVm)
+        public async Task<ActionResult> AddRoleAsync(RoleDto roleVm)
         {
             var res = await _userServices.AddRoleAsync(roleVm);
             return Ok(res);

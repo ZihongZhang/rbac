@@ -143,7 +143,7 @@ public class UserServices : IScoped
         var user = await _db.Queryable<User>().Includes(a => a.RoleList).ToListAsync();
         var userDto = user.Adapt<List<UserVm>>();
         var file = ExcelHelper.SetSimpleExcel(userDto);
-        return file;      
+        return file;
     }
 
     /// <summary>
@@ -197,9 +197,9 @@ public class UserServices : IScoped
 
         //先转换成listvm
         var menuVmList = menu.Adapt<List<MenuVm>>();
-        GetMenuVms(menuVmList);
+        var res = GetMenuVms(menuVmList);
 
-        return menuVmList;
+        return res;
     }
 
     #endregion
@@ -309,6 +309,15 @@ public class UserServices : IScoped
         if (!userExist) throw new DomainException("当前用户不存在");
         var roleExist = await _db.Queryable<Role>().AnyAsync(a => a.Id == roleVms.Id);
         if (!roleExist) throw new DomainException("当前用户不存在");
+
+        //将菜单父节点添加到菜单列表中，因为前端只传菜单id叶子节点信息后端手动补上菜单父节点信息
+        var menuList = await _db.Queryable<Menu>()
+                               .ToListAsync();
+        foreach (var menuId in roleVms.MenuIdList.ToList()) // 使用副本避免修改集合时报错
+        {
+            AddParentMenuIds(menuId, menuList, roleVms);
+        }
+
         var role = roleVms.Adapt<Role>();
         var res = await _db.UpdateNav(role, new UpdateNavRootOptions()
         {
@@ -327,14 +336,14 @@ public class UserServices : IScoped
     /// </summary>
     /// <param name="roleVm"></param>
     /// <returns></returns>
-    public async Task<string> AddRoleAsync(RoleVm roleVm)
+    public async Task<string> AddRoleAsync(RoleDto roleVm)
     {
         var userId = _httpContextAccessor?.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         CheckHelper.NotNull(userId, "当前用户不存在");
         var userExist = await _db.Queryable<User>()
                                  .AnyAsync(a => a.Id == userId);
         if (!userExist) throw new DomainException("当前用户不存在");
-        if (string.IsNullOrWhiteSpace(roleVm.RoleName) || string.IsNullOrWhiteSpace(roleVm.Id) || string.IsNullOrWhiteSpace(roleVm.ParentRoleId))
+        if (string.IsNullOrWhiteSpace(roleVm.RoleName) || string.IsNullOrWhiteSpace(roleVm.ParentRoleId))
             throw new DomainException("角色信息未填写完整");
         var role = roleVm.Adapt<Role>();
         role.Id = Guid.NewGuid().ToString();
@@ -368,11 +377,26 @@ public class UserServices : IScoped
         throw new DomainException("删除失败");
     }
 
-    
+
 
 
     #endregion
-    #region 通用方法    
+    #region 通用方法
+    // 递归函数：用于检查并添加父菜单 ID
+    void AddParentMenuIds(string menuId, List<Menu> menuList, RoleVm roleVms)
+    {
+        var menu = menuList.FirstOrDefault(a => a.Id == menuId);
+        if (menu != null && menu.Pid != "0")
+        {
+            var parentMenu = menuList.FirstOrDefault(a => a.Id == menu.Pid);
+            if (parentMenu != null && !roleVms.MenuIdList.Contains(parentMenu.Id))
+            {
+                roleVms.MenuIdList.Add(parentMenu.Id);
+                // 递归调用，继续检查父菜单的父 ID
+                AddParentMenuIds(parentMenu.Id, menuList, roleVms);
+            }
+        }
+    }
     /// <summary>
     /// 产生token
     /// </summary>
