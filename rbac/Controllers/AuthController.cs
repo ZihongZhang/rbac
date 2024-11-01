@@ -193,6 +193,14 @@ namespace rbac.Controllers
             return Ok(res);
         }
 
+        [Authorize]
+        [HttpGet("get-role-menu")]
+        public async Task<ActionResult> GetRoleMenu(string roleId)
+        {
+            var res = await _userServices.GetMenuListForRoleAsync(roleId);
+            return Ok(res);
+        }
+
          
     }
 }

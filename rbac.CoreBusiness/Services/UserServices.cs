@@ -282,6 +282,25 @@ public class UserServices : IScoped
 
     #region 角色相关方法
     /// <summary>
+    /// 获取当前角色的菜单列表
+    /// </summary>
+    /// <param name="roleId"></param>
+    /// <returns></returns>
+    public async Task<List<MenuVm>> GetMenuListForRoleAsync(string roleId)
+    {
+        var role = await _db.Queryable<Role>()
+                           .Includes(a => a.MenuList)
+                           .FirstAsync(a => a.Id == roleId);
+        CheckHelper.NotNull(role, "当前角色不存在");
+        var menu = role.MenuList.Adapt<List<MenuVm>>();
+        var res = GetMenuVms(menu);
+        return res;
+        
+    }
+
+
+
+    /// <summary>
     /// 获取所有角色信息
     /// </summary>
     /// <returns></returns>
