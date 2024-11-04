@@ -106,7 +106,9 @@ namespace rbac.StartupExtensions
                     new Menu{ CreateUserId="0", Id="1310000000121", Pid="1310000000120", Title="添加角色", Permission="sysRole:insertRole", Type=MenuTypeEnum.Btn },
                     new Menu{ CreateUserId="0", Id="1310000000122", Pid="1310000000120", Title="修改角色", Permission="sysRole:updateRole", Type=MenuTypeEnum.Btn },
                     new Menu{ CreateUserId="0", Id="1310000000123", Pid="1310000000120", Title="删除角色", Permission="sysRole:deleteRole", Type=MenuTypeEnum.Btn },
-                    new Menu{ CreateUserId="0", Id="1310000000119", Pid="1310000000120", Title="查询角色", Permission="sysRole:getRole", Type=MenuTypeEnum.Btn }
+                    new Menu{ CreateUserId="0", Id="1310000000119", Pid="1310000000120", Title="查询角色", Permission="sysRole:getRole", Type=MenuTypeEnum.Btn },
+                    new Menu{ CreateUserId="0", Id="1310000000126", Pid="0", Title="AI对话", Path="/ai-talk", Name="ai-conversation", Component="Layout", Icon="ele-Setting", Type=MenuTypeEnum.Dir },
+                    new Menu{ CreateUserId="0", Id="1310000000127", Pid="1310000000126", Title="deeptalk对话", Path="/system/deep-seek-talk", Name="deep-seek", Component="/views/ai-talk/index.vue", Icon="ele-User", Type=MenuTypeEnum.Menu },
                 };
                 db.Insertable(Menus).ExecuteCommand();
             }

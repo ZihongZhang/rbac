@@ -179,22 +179,24 @@ public class UserServices : IScoped
     {
         var userId = _httpContextAccessor?.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         CheckHelper.NotNull(userId, "当前用户不存在");
-        //获取当前用户对应的权限
-        var roleIds = await _db.Queryable<UserRole>()
-                               .Where(a => a.UserId == userId)
-                               .Select(a => a.RoleId)
-                               .ToListAsync();
-        CheckHelper.NotNull(roleIds, "当前用户不存在对应的角色");
-        var MenuIds = await _db.Queryable<RoleMenu>()
-                               .Where(a => roleIds.Contains(a.RoleId ?? "0"))
-                               .Select(a => a.MenuId)
-                               .Distinct()
-                               .ToListAsync();
-        CheckHelper.NotNull(MenuIds, "当前角色没有任何权限");
+        
+        // //获取当前用户对应的权限 已经被弃用
+        // var roleIds = await _db.Queryable<UserRole>()
+        //                        .Where(a => a.UserId == userId)
+        //                        .Select(a => a.RoleId)
+        //                        .ToListAsync();
+        // CheckHelper.NotNull(roleIds, "当前用户不存在对应的角色");
+        // var MenuIds = await _db.Queryable<RoleMenu>()
+        //                        .Where(a => roleIds.Contains(a.RoleId ?? "0"))
+        //                        .Select(a => a.MenuId)
+        //                        .Distinct()
+        //                        .ToListAsync();
+        // CheckHelper.NotNull(MenuIds, "当前角色没有任何权限");
+        // var menu = await _db.Queryable<Menu>()
+        //                     .Where(a => MenuIds.Contains(a.Id))
+        //                     .ToListAsync();
         var menu = await _db.Queryable<Menu>()
-                            .Where(a => MenuIds.Contains(a.Id))
                             .ToListAsync();
-
         //先转换成listvm
         var menuVmList = menu.Adapt<List<MenuVm>>();
         var res = GetMenuVms(menuVmList);
