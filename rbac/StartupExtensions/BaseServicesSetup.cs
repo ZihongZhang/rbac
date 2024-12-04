@@ -6,6 +6,7 @@ using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Quartz;
 using rbac.Configs;
 using rbac.Filters;
 using rbac.Infra;
@@ -124,8 +125,14 @@ public static class BaseServiceSetup
         .Get<string[]>();
         services.AddCors(options =>
         {
+            // options.AddPolicy("AllowSpecificOrigin",
+            //     builder => builder.WithOrigins(origin)
+            //                       .AllowAnyHeader()
+            //                       .AllowAnyMethod()
+            //                       .AllowCredentials()
+            //     );
             options.AddPolicy("AllowSpecificOrigin",
-                builder => builder.WithOrigins(origin)
+                builder => builder.SetIsOriginAllowed(_ => true)
                                   .AllowAnyHeader()
                                   .AllowAnyMethod()
                                   .AllowCredentials()
@@ -134,6 +141,10 @@ public static class BaseServiceSetup
 
     }
 
+    /// <summary>
+    /// 添加freescheduler支持
+    /// </summary>
+    /// <param name="services"></param>
     public static void AddFreeSchedulerScheduler(this IServiceCollection services)
     {
         Scheduler scheduler = new FreeSchedulerBuilder()
@@ -149,6 +160,48 @@ public static class BaseServiceSetup
             .Build();
         services.AddSingleton(scheduler);
     }
+
+    // /// <summary>
+    // /// 
+    // /// </summary>
+    // /// <param name="services"></param>
+    // public static void AddQuartz(this IServiceCollection services)
+    // {
+    //     services.AddQuartz(q =>
+    //         {
+    //         	//使用持久化存储
+    //             q.UsePersistentStore(s =>
+    //             {
+    //                 s.UseProperties = true;
+    //                 s.RetryInterval = TimeSpan.FromSeconds(15);
+    //                 s.UsePostgres();
+    //                 s.UseJsonSerializer();
+    //                 s.UseClustering(c =>
+    //                 {
+    //                     c.CheckinMisfireThreshold = TimeSpan.FromSeconds(20);
+    //                     c.CheckinInterval = TimeSpan.FromSeconds(10);
+    //                 });
+    //             });
+    //             q.UseMicrosoftDependencyInjectionJobFactory();
+    //             q.UseDefaultThreadPool(tp =>
+    //             {
+    //                 tp.MaxConcurrency = 10;
+    //             });
+
+	// 			//添加一个循环任务
+    //             JobDataMap jobDataMap = new JobDataMap();
+    //             jobDataMap.Put("haha", "hahahaha");
+    //             q.ScheduleJob<FirstQuartzJob>(trigger => trigger
+    //             .WithIdentity("Combined Configuration Trigger")
+    //             .StartAt(DateBuilder.EvenSecondDate(DateTimeOffset.UtcNow.AddSeconds(7)))
+    //             .WithCronSchedule("0/1 * * * * ?")
+    //             .WithDescription("my awesome trigger configured for a job with single call")
+    //             .UsingJobData(jobDataMap)
+    //             );
+    //         });
+    // }
+
+
 
 
 }

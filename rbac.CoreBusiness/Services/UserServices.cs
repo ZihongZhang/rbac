@@ -60,16 +60,13 @@ public class UserServices : IScoped
         {
             throw new DomainException("密码不能为空!");
         }
-        User user = null;
 
-        lock (_db)
-        {
-            //var user = await _db.Queryable<User>().Where(a => a.Username == loginDto.UserName).FirstAsync()
-            //    ?? throw new DomainException("不存在该用户");
-            user = _db.Queryable<User>().Where(a => a.Username == loginDto.UserName).First()
+        //var user = await _db.Queryable<User>().Where(a => a.Username == loginDto.UserName).FirstAsync()
+        //    ?? throw new DomainException("不存在该用户");
+        var user = await _db.Queryable<User>().Where(a => a.Username == loginDto.UserName).FirstAsync()
                ?? throw new DomainException("不存在该用户");
 
-        }
+
         if (user.Status == StatusEnum.Disable) throw new DomainException("该用户已被禁用");
 
         if (!user.Password.Equals(loginDto.Password))
@@ -179,7 +176,7 @@ public class UserServices : IScoped
     {
         var userId = _httpContextAccessor?.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         CheckHelper.NotNull(userId, "当前用户不存在");
-        
+
         // //获取当前用户对应的权限 已经被弃用
         // var roleIds = await _db.Queryable<UserRole>()
         //                        .Where(a => a.UserId == userId)
@@ -297,7 +294,7 @@ public class UserServices : IScoped
         var menu = role.MenuList.Adapt<List<MenuVm>>();
         var res = GetMenuVms(menu);
         return res;
-        
+
     }
 
 

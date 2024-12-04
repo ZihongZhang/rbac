@@ -65,8 +65,7 @@ namespace rbac
                 //增加定时任务
                 builder.Services.AddFreeSchedulerScheduler();
 
-
-                builder.WebHost.UseUrls("http://192.168.18.32:5234","http://localhost:5234");
+                builder.WebHost.UseUrls(builder.Configuration["Url"]?? "http://localhost:5173");
 
                 //使用serilog替换原生log
                 Log.Logger = new LoggerConfiguration()
@@ -78,7 +77,7 @@ namespace rbac
 
                 builder.Services.AddAndConfigMapster();
 
-                //从配置文件中读取跨域请求
+                //从配置文件中读取跨域请求 默认全部允许
                 builder.Services.AddCorsPolicy();
 
                 var app = builder.Build();

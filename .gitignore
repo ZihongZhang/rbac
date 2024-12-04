@@ -19,3 +19,6 @@ packages/
 
 # 忽略创建的sqlite
 *.db
+
+# 忽略所有 publish 文件
+rbac/publish/

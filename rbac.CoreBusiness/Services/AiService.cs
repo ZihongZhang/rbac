@@ -114,8 +114,6 @@ public class AiService : IScoped
         {
             throw new DomainException("信息插入失败");
         }
-
-
         return res;
     }
     /// <summary>
