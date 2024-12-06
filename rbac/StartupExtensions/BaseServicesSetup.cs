@@ -7,8 +7,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Quartz;
+using Quartz.AspNetCore;
 using rbac.Configs;
 using rbac.Filters;
+using rbac.HostedServices;
 using rbac.Infra;
 using Serilog;
 
@@ -161,45 +163,42 @@ public static class BaseServiceSetup
         services.AddSingleton(scheduler);
     }
 
-    // /// <summary>
-    // /// 
-    // /// </summary>
-    // /// <param name="services"></param>
-    // public static void AddQuartz(this IServiceCollection services)
-    // {
-    //     services.AddQuartz(q =>
-    //         {
-    //         	//使用持久化存储
-    //             q.UsePersistentStore(s =>
-    //             {
-    //                 s.UseProperties = true;
-    //                 s.RetryInterval = TimeSpan.FromSeconds(15);
-    //                 s.UsePostgres();
-    //                 s.UseJsonSerializer();
-    //                 s.UseClustering(c =>
-    //                 {
-    //                     c.CheckinMisfireThreshold = TimeSpan.FromSeconds(20);
-    //                     c.CheckinInterval = TimeSpan.FromSeconds(10);
-    //                 });
-    //             });
-    //             q.UseMicrosoftDependencyInjectionJobFactory();
-    //             q.UseDefaultThreadPool(tp =>
-    //             {
-    //                 tp.MaxConcurrency = 10;
-    //             });
+    /// <summary>
+    /// 使用quantz持久化数据库
+    /// </summary>
+    /// <param name="services"></param>
+    public static void AddQuartz(this IServiceCollection services)
+    {
+        services.AddQuartz(q =>
+            {
+            	// TODO 使用持久化存储
+                // q.UsePersistentStore(s =>
+                // {
+                //     s.UseProperties = true;
+                //     s.RetryInterval = TimeSpan.FromSeconds(15);
+                //     s.UsePostgres(p =>
+                //     {
+                //         p.ConnectionString = _configuration.GetValue<string>("DBS:0:Connection")??"PORT=5432;DATABASE=rbac;HOST=localhost;PASSWORD=Suvalue2016;USER ID=postgres";
+                //         p.TablePrefix = "qrtz_";
+                //     });
+                //     s.UsePostgres(_configuration.GetValue<string>("DBS:0:Connection")??"PORT=5432;DATABASE=rbac;HOST=localhost;PASSWORD=Suvalue2016;USER ID=postgres");
+                //     s.UseNewtonsoftJsonSerializer();
+                // });
+                q.UseDefaultThreadPool(tp =>
+                {
+                    tp.MaxConcurrency = 10;
+                });		
+            });
+        services.AddQuartzServer(o =>
+        {
+            o.WaitForJobsToComplete = false;
+        });
+    }
 
-	// 			//添加一个循环任务
-    //             JobDataMap jobDataMap = new JobDataMap();
-    //             jobDataMap.Put("haha", "hahahaha");
-    //             q.ScheduleJob<FirstQuartzJob>(trigger => trigger
-    //             .WithIdentity("Combined Configuration Trigger")
-    //             .StartAt(DateBuilder.EvenSecondDate(DateTimeOffset.UtcNow.AddSeconds(7)))
-    //             .WithCronSchedule("0/1 * * * * ?")
-    //             .WithDescription("my awesome trigger configured for a job with single call")
-    //             .UsingJobData(jobDataMap)
-    //             );
-    //         });
-    // }
+    public static void AddCustomHostedService(this IServiceCollection services)
+    {
+        services.AddHostedService<BackgroundJobHostedService>();        
+    }
 
 
 

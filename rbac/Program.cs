@@ -64,6 +64,9 @@ namespace rbac
                 
                 //增加定时任务
                 builder.Services.AddFreeSchedulerScheduler();
+                
+                //增加定时任务
+                builder.Services.AddQuartz();
 
                 builder.WebHost.UseUrls(builder.Configuration["Url"]?? "http://localhost:5173");
 
@@ -76,6 +79,8 @@ namespace rbac
                 builder.Services.AddSerilog();
 
                 builder.Services.AddAndConfigMapster();
+                
+                builder.Services.AddCustomHostedService();
 
                 //从配置文件中读取跨域请求 默认全部允许
                 builder.Services.AddCorsPolicy();
