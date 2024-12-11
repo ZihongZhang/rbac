@@ -5,6 +5,7 @@ using Mapster;
 using MapsterMapper;
 using Masuit.Tools;
 using Masuit.Tools.Models;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -27,24 +28,29 @@ namespace rbac.CoreBusiness.Services;
 public class UserServices : IScoped
 {
     private readonly ILogger<UserServices> _logger;
-    private readonly IConfiguration configuration;
+    private readonly IConfiguration _configuration;
+    private readonly IWebHostEnvironment _env;
+
     // private readonly IMapper _mapper;
 
     public Repository<User> _userRepository { get; }
     public ISqlSugarClient _db { get; }
     public IHttpContextAccessor _httpContextAccessor { get; }
 
-    public UserServices(Repository<User> repository, ISqlSugarClient db, IHttpContextAccessor httpContextAccessor, ILogger<UserServices> logger, IConfiguration configuration)
+    public UserServices(Repository<User> repository, ISqlSugarClient db, 
+    IHttpContextAccessor httpContextAccessor, ILogger<UserServices> logger, 
+    IConfiguration configuration,IWebHostEnvironment env)
     {
         _userRepository = repository;
         _db = db;
         _httpContextAccessor = httpContextAccessor;
         _logger = logger;
-        this.configuration = configuration;
+        _configuration = configuration;
+        _env = env;
         //_mapper = mapper;
     }
 
-    #region 登录，添加新用户，获取用户,获取菜单信息
+    #region 登录，添加新用户，获取用户,获取菜单信息,添加用户头像
 
     /// <summary>
     /// 登录
@@ -63,7 +69,9 @@ public class UserServices : IScoped
 
         //var user = await _db.Queryable<User>().Where(a => a.Username == loginDto.UserName).FirstAsync()
         //    ?? throw new DomainException("不存在该用户");
-        var user = await _db.Queryable<User>().Where(a => a.Username == loginDto.UserName).FirstAsync()
+        var user = await _db.Queryable<User>()
+                            .Where(a => a.Username == loginDto.UserName)
+                            .FirstAsync()
                ?? throw new DomainException("不存在该用户");
 
 
@@ -199,6 +207,38 @@ public class UserServices : IScoped
         var res = GetMenuVms(menuVmList);
 
         return res;
+    }
+
+    public async Task<string> UploadUserImageAsync(IFormFile file)
+    {
+        if (file == null || file.Length == 0)
+            throw new DomainException("文件为空");
+
+        // 确保 wwwroot/images 文件夹存在
+        var uploadPath = Path.Combine(_env.WebRootPath, "images");
+        if (!Directory.Exists(uploadPath))
+            Directory.CreateDirectory(uploadPath);
+
+        // 生成唯一文件名，防止覆盖
+        var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+        var filePath = Path.Combine(uploadPath, uniqueFileName);
+
+        // 保存文件到服务器
+        using (var stream = new FileStream(filePath, FileMode.Create))
+        {
+            await file.CopyToAsync(stream);
+        }
+
+        // 返回文件的 URL
+        var fileUrl = $"{_httpContextAccessor?.HttpContext?.Request.Scheme}://{_httpContextAccessor?.HttpContext?.Request.Host}/images/{uniqueFileName}";
+        string url = fileUrl;
+        var userId = _httpContextAccessor?.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var a = await _db.Updateable<User>().SetColumns(a => new User()
+        {
+            AvatarUrl = url
+        }).Where(a => a.Id == userId).ExecuteCommandAsync();
+        if (a == 0) throw new DomainException("不存在该用户");
+        return url;
     }
 
     #endregion
@@ -366,7 +406,9 @@ public class UserServices : IScoped
         var role = roleVm.Adapt<Role>();
         role.Id = Guid.NewGuid().ToString();
         role.CreateUserId = _httpContextAccessor?.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var res = await _db.InsertNav(role).Include(x => x.MenuList).ExecuteCommandAsync();
+        var res = await _db.InsertNav(role)
+                           .Include(x => x.MenuList)
+                           .ExecuteCommandAsync();
         if (res) return "插入成功";
         throw new DomainException("插入失败");
     }

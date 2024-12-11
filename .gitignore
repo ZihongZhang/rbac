@@ -11,6 +11,10 @@ obj/
 # 忽略所有 .log 文件
 *.log
 
+# 忽略所有 wwwroot下面的文件
+/rbac/wwwroot/
+
+
 # 忽略所有以 log- 开头并且以 .txt 结尾的文件
 log-*.txt
 

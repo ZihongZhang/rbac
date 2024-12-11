@@ -17,17 +17,22 @@ namespace rbac.Controllers
         private readonly ISqlSugarClient _db;
         private readonly UserServices _userServices;
         private readonly ILogger<AuthController> _logger;
+        private readonly IWebHostEnvironment _env;
 
         public Repository<User> Repository { get; }
         public AiService _aiService { get; }
 
-        public AuthController(ISqlSugarClient sqlSugar,Repository<User> repository,UserServices userServices,ILogger<AuthController> logger,AiService aiService)
+        public AuthController(ISqlSugarClient sqlSugar, Repository<User> repository,
+        UserServices userServices, ILogger<AuthController> logger, AiService aiService
+        , IWebHostEnvironment env
+        )
         {
             _db = sqlSugar;
             Repository = repository;
             _userServices = userServices;
             _logger = logger;
             _aiService = aiService;
+            _env = env;
         }
 
         /// <summary>
@@ -39,7 +44,7 @@ namespace rbac.Controllers
         public async Task<ActionResult<string>> Login(LoginDto login)
         {
             string token = await _userServices.LoginAsync(login);
-            return Ok(token);                    
+            return Ok(token);
         }
 
         /// <summary>
@@ -53,7 +58,7 @@ namespace rbac.Controllers
             return Ok(userInfo);
         }
 
-        
+
 
         /// <summary>
         /// 添加用户
@@ -77,7 +82,7 @@ namespace rbac.Controllers
         public async Task<ActionResult> GetAllUsers()
         {
             var result = await _userServices.GetAllUsersAsync();
-            return Ok(result);            
+            return Ok(result);
         }
         /// <summary>
         /// 获取全部用户的excel信息
@@ -88,7 +93,7 @@ namespace rbac.Controllers
         public async Task<ActionResult> GetAllUsersExcel(string filename)
         {
             var result = await _userServices.GetAllUsersExcelAsync();
-            return File(result, "application/ms-excel", $"{filename}.xlsx");            
+            return File(result, "application/ms-excel", $"{filename}.xlsx");
         }
 
         /// <summary>
@@ -110,10 +115,10 @@ namespace rbac.Controllers
         /// <returns></returns>
         [Authorize]
         [HttpGet("paged-users")]
-        public async Task<ActionResult> GetPagedUsers([FromQuery]UserQms userQms)
+        public async Task<ActionResult> GetPagedUsers([FromQuery] UserQms userQms)
         {
-            var result =await _userServices.GetPagedUsersAsync(userQms);
-            return Ok(result);           
+            var result = await _userServices.GetPagedUsersAsync(userQms);
+            return Ok(result);
         }
 
         /// <summary>
@@ -125,8 +130,8 @@ namespace rbac.Controllers
         [HttpGet("get-roles")]
         public async Task<ActionResult> GetRoleListAsyc()
         {
-            var result =await _userServices.GetRoleListAsyc();
-            return Ok(result);           
+            var result = await _userServices.GetRoleListAsyc();
+            return Ok(result);
         }
 
         /// <summary>
@@ -167,7 +172,7 @@ namespace rbac.Controllers
             var res = await _userServices.UpdateRolesMenuAsync(roleVm);
             return Ok(res);
         }
-        
+
         /// <summary>
         /// 增加新的角色
         /// </summary>
@@ -193,6 +198,11 @@ namespace rbac.Controllers
             return Ok(res);
         }
 
+        /// <summary>
+        /// 获取角色对应的菜单
+        /// </summary>
+        /// <param name="roleId"></param>
+        /// <returns></returns>
         [Authorize]
         [HttpGet("get-role-menu")]
         public async Task<ActionResult> GetRoleMenu(string roleId)
@@ -201,6 +211,17 @@ namespace rbac.Controllers
             return Ok(res);
         }
 
-         
+        /// <summary>
+        /// 上传文件
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        [HttpPost("upload")]
+        public async Task<IActionResult> Upload(IFormFile file)
+        {
+            var res = await _userServices.UploadUserImageAsync(file);
+            return Ok(res);
+        }
+
     }
 }

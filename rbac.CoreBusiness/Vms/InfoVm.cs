@@ -21,6 +21,11 @@ public class InfoVm
     public string Email { get; set; }
 
     /// <summary>
+    /// 用户头像url
+    /// </summary>
+    public string? AvatarUrl { get; set; }
+
+    /// <summary>
     /// 用户手机
     /// </summary>
     public string? Mobile { get; set; }

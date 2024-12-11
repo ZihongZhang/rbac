@@ -35,6 +35,7 @@ public static class MapsterConfig
         TypeAdapterConfig<User,UserDto>
             .NewConfig()
             .Map(dest => dest.Username, src => src.Username)
+            .Map(dest => dest.AvatarUrl, src => src.AvatarUrl)
             .Map(dest => dest.Password, src => src.Username)
             .Map(dest => dest.Email, src => src.Email)
             .Map(dest => dest.Mobile, src => src.Mobile)
@@ -47,6 +48,7 @@ public static class MapsterConfig
             .NewConfig()
             .Map(dest => dest.Username, src => src.Username)
             .Map(dest => dest.Password, src => src.Username)
+            .Map(dest => dest.AvatarUrl, src => src.AvatarUrl)
             .Map(dest => dest.Email, src => src.Email)
             .Map(dest => dest.Mobile, src => src.Mobile)
             .Map(dest => dest.Status, src => src.Status)

@@ -39,7 +39,12 @@ public class UserVm
     /// <summary>
     /// 并发控制字段
     /// </summary>
-    public string Ver { get; set; } ="1";  
+    public string Ver { get; set; } ="1";
+
+    /// <summary>
+    /// 用户头像url
+    /// </summary>
+    public string? AvatarUrl { get; set; }  
 
     /// <summary>
     /// 角色列表

@@ -28,6 +28,13 @@ public class User : ModelBase,ITenantIdFilter
     [SugarColumn(IsNullable = true)]//可以为NULL
     public string Mobile { get; set; }
 
+
+    /// <summary>
+    /// 用户头像url
+    /// </summary>
+    [SugarColumn(IsNullable = true)]//可以为NULL
+    public string? AvatarUrl { get; set; }
+
     /// <summary>
     /// 状态
     /// </summary>

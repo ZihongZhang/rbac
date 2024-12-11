@@ -95,7 +95,7 @@ namespace rbac
                     c.ConfigObject.AdditionalItems.Add("persistAuthorization","true");
                 });
 
-                
+                app.UseStaticFiles();
            
                 app.UseHttpsRedirection();
 

@@ -35,6 +35,11 @@ public class UserDto
     /// 租户id
     /// </summary>
     public string TenantId { get; set; } = "0" ;
+    
+    /// <summary>
+    /// 用户头像url
+    /// </summary>
+    public string? AvatarUrl { get; set; }
 
     /// <summary>
     /// 角色Id的list
