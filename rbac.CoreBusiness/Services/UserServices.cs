@@ -30,6 +30,7 @@ public class UserServices : IScoped
     private readonly ILogger<UserServices> _logger;
     private readonly IConfiguration _configuration;
     private readonly IWebHostEnvironment _env;
+    private readonly IUserIdentity _userIdentity;
 
     // private readonly IMapper _mapper;
 
@@ -39,7 +40,7 @@ public class UserServices : IScoped
 
     public UserServices(Repository<User> repository, ISqlSugarClient db, 
     IHttpContextAccessor httpContextAccessor, ILogger<UserServices> logger, 
-    IConfiguration configuration,IWebHostEnvironment env)
+    IConfiguration configuration,IWebHostEnvironment env,IUserIdentity userIdentity)
     {
         _userRepository = repository;
         _db = db;
@@ -47,6 +48,7 @@ public class UserServices : IScoped
         _logger = logger;
         _configuration = configuration;
         _env = env;
+        _userIdentity = userIdentity;
         //_mapper = mapper;
     }
 
@@ -110,7 +112,7 @@ public class UserServices : IScoped
 
         // var TenantId = _httpContextAccessor.HttpContext?.User.FindFirstValue("tenantId");
         //获取当前userId并作为创建id赋值
-        var UserId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var UserId = _userIdentity.UserId;
         CheckHelper.NotNull(UserId, "当前用户信息不存在");
         user.CreateUserId = UserId ?? "1";
         user.Id = Guid.NewGuid().ToString();
@@ -159,7 +161,7 @@ public class UserServices : IScoped
     public async Task<PagedList<UserVm>> GetPagedUsersAsync(UserQms userQms)
     {
         RefAsync<int> totalCount = 0;
-        var userId = _httpContextAccessor?.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userId = _userIdentity.UserId;
         CheckHelper.NotNull(userId, "当前用户不存在");
         CheckHelper.NotNull(await _userRepository.GetByIdAsync(userId), "当前用户信息不存在");
 
@@ -182,7 +184,7 @@ public class UserServices : IScoped
     /// <returns></returns>
     public async Task<List<MenuVm>> GetMenuList()
     {
-        var userId = _httpContextAccessor?.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userId = _userIdentity.UserId;
         CheckHelper.NotNull(userId, "当前用户不存在");
 
         // //获取当前用户对应的权限 已经被弃用
@@ -232,7 +234,7 @@ public class UserServices : IScoped
         // 返回文件的 URL
         var fileUrl = $"{_httpContextAccessor?.HttpContext?.Request.Scheme}://{_httpContextAccessor?.HttpContext?.Request.Host}/images/{uniqueFileName}";
         string url = fileUrl;
-        var userId = _httpContextAccessor?.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userId = _userIdentity.UserId;
         var a = await _db.Updateable<User>().SetColumns(a => new User()
         {
             AvatarUrl = url
@@ -251,7 +253,7 @@ public class UserServices : IScoped
         var userCount = await _userRepository.AsQueryable().Where(user => user.Id == userVm.Id).AnyAsync();
         if (!userCount) throw new DomainException("用户不存在");
         var updateUser = userVm.Adapt<User>();
-        updateUser.UpdateUserId = _httpContextAccessor?.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        updateUser.UpdateUserId = _userIdentity.UserId;
 
         //更新用户以及用户角色关系表
         var result = await _db.UpdateNav(updateUser, new UpdateNavRootOptions()
@@ -275,7 +277,7 @@ public class UserServices : IScoped
     /// <exception cref="DomainException"></exception>
     public async Task<string> DeleteUserAsync(UserVm userVm)
     {
-        var userId = _httpContextAccessor?.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userId = _userIdentity.UserId;
         CheckHelper.NotNull(userId, "当前用户不存在");
         if (string.IsNullOrWhiteSpace(userVm.Username)) throw new DomainException("用户名未填写");
         var userCount = _userRepository.AsQueryable()
@@ -285,7 +287,7 @@ public class UserServices : IScoped
         var deleteUser = userVm.Adapt<User>();
         //删除
         deleteUser.IsDeleted = true;
-        deleteUser.UpdateUserId = _httpContextAccessor?.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        deleteUser.UpdateUserId = _userIdentity.UserId;
         deleteUser.UpdateTime = DateTime.Now;
         var res = await _db.Updateable<User>().SetColumns(a => new User()
         {
@@ -305,7 +307,7 @@ public class UserServices : IScoped
     /// <returns></returns>
     public async Task<InfoVm> GetInfoAsync()
     {
-        var userId = _httpContextAccessor?.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userId = _userIdentity.UserId;
         CheckHelper.NotNull(userId, "当前用户不存在");
 
         var user = await _db.Queryable<User>()
@@ -358,7 +360,7 @@ public class UserServices : IScoped
     /// <returns></returns>
     public async Task<string> UpdateRolesMenuAsync(RoleVm roleVms)
     {
-        var userId = _httpContextAccessor?.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userId = _userIdentity.UserId;
         CheckHelper.NotNull(userId, "当前用户不存在");
         if (string.IsNullOrWhiteSpace(roleVms.RoleName) || string.IsNullOrWhiteSpace(roleVms.Id) || string.IsNullOrWhiteSpace(roleVms.ParentRoleId))
             throw new DomainException("角色信息未填写完整");
@@ -389,6 +391,7 @@ public class UserServices : IScoped
         if (res) return "更新成功";
         throw new DomainException("更新角色权限失败失败");
     }
+
     /// <summary>
     /// 添加新角色信息
     /// </summary>
@@ -396,7 +399,7 @@ public class UserServices : IScoped
     /// <returns></returns>
     public async Task<string> AddRoleAsync(RoleDto roleVm)
     {
-        var userId = _httpContextAccessor?.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userId = _userIdentity.UserId;
         CheckHelper.NotNull(userId, "当前用户不存在");
         var userExist = await _db.Queryable<User>()
                                  .AnyAsync(a => a.Id == userId);
@@ -405,13 +408,14 @@ public class UserServices : IScoped
             throw new DomainException("角色信息未填写完整");
         var role = roleVm.Adapt<Role>();
         role.Id = Guid.NewGuid().ToString();
-        role.CreateUserId = _httpContextAccessor?.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        role.CreateUserId = _userIdentity.UserId;
         var res = await _db.InsertNav(role)
                            .Include(x => x.MenuList)
                            .ExecuteCommandAsync();
         if (res) return "插入成功";
         throw new DomainException("插入失败");
     }
+
     /// <summary>
     /// 删除角色信息
     /// </summary>
@@ -419,7 +423,7 @@ public class UserServices : IScoped
     /// <returns></returns>
     public async Task<string> DeleteRoleAsync(RoleVm roleVm)
     {
-        var userId = _httpContextAccessor?.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userId = _userIdentity.UserId;
         CheckHelper.NotNull(userId, "当前用户不存在");
         var userExist = await _db.Queryable<User>()
                                  .AnyAsync(a => a.Id == userId);

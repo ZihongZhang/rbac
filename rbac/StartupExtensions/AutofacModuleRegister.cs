@@ -19,6 +19,8 @@ public class AutofacModuleRegister : Autofac.Module
         builder.RegisterGeneric(typeof(Repository<>)).InstancePerLifetimeScope();
 
          builder.RegisterType<HttpContextAccessor>().As<IHttpContextAccessor>();
+
+         builder.RegisterType<UserIdentity>().As<IUserIdentity>().InstancePerLifetimeScope();
         
         // builder.RegisterType<UserServices>().InstancePerLifetimeScope();
 

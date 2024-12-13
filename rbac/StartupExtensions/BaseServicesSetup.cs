@@ -116,6 +116,7 @@ public static class BaseServiceSetup
         services.AddMapster();
         MapsterConfig.Configure();
     }
+
     /// <summary>
     /// 添加跨域功能
     /// </summary>
@@ -199,8 +200,4 @@ public static class BaseServiceSetup
     {
         services.AddHostedService<BackgroundJobHostedService>();        
     }
-
-
-
-
 }
