@@ -23,7 +23,29 @@ public class TestJob : IJob
     {
         _logger.LogTrace("定时任务开始：{Description}", context.JobDetail.Description);
 
-        var res = await _db.Queryable<User>().ToListAsync();
-        Console.WriteLine("测试定时任务正在执行");        
+        string logsFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "logs");
+
+        if (!Directory.Exists(logsFolderPath))
+        {
+            _logger.LogInformation("日志文件夹不存在！");
+        }
+        // 日志保留天数
+        int retentionDays = 3;
+
+        // 获取日志文件
+        string[] logFiles = Directory.GetFiles(logsFolderPath, "*.txt");
+
+        foreach (string logFile in logFiles)
+        {
+            FileInfo fileInfo = new FileInfo(logFile);
+
+            // 如果文件修改时间早于保留期限，删除文件
+            if (fileInfo.LastWriteTime <DateTime.Now.AddDays(-retentionDays))
+            {
+                File.Delete(logFile);
+                _logger.LogInformation($"删除日志文件：{logFile}");
+            }
+        }
+                
     }
 }

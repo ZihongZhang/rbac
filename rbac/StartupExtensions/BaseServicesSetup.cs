@@ -171,25 +171,25 @@ public static class BaseServiceSetup
     public static void AddQuartz(this IServiceCollection services)
     {
         services.AddQuartz(q =>
+        {
+            // TODO 使用持久化存储
+            // q.UsePersistentStore(s =>
+            // {
+            //     s.UseProperties = true;
+            //     s.RetryInterval = TimeSpan.FromSeconds(15);
+            //     s.UsePostgres(p =>
+            //     {
+            //         p.ConnectionString = _configuration.GetValue<string>("DBS:0:Connection") ?? "PORT=5432;DATABASE=rbac;HOST=localhost;PASSWORD=Suvalue2016;USER ID=postgres";
+            //         p.TablePrefix = "qrtz_";
+            //     });
+            //     s.UsePostgres(_configuration.GetValue<string>("DBS:0:Connection") ?? "PORT=5432;DATABASE=rbac;HOST=localhost;PASSWORD=Suvalue2016;USER ID=postgres");
+            //     s.UseNewtonsoftJsonSerializer();
+            // });
+            q.UseDefaultThreadPool(tp =>
             {
-            	// TODO 使用持久化存储
-                // q.UsePersistentStore(s =>
-                // {
-                //     s.UseProperties = true;
-                //     s.RetryInterval = TimeSpan.FromSeconds(15);
-                //     s.UsePostgres(p =>
-                //     {
-                //         p.ConnectionString = _configuration.GetValue<string>("DBS:0:Connection")??"PORT=5432;DATABASE=rbac;HOST=localhost;PASSWORD=Suvalue2016;USER ID=postgres";
-                //         p.TablePrefix = "qrtz_";
-                //     });
-                //     s.UsePostgres(_configuration.GetValue<string>("DBS:0:Connection")??"PORT=5432;DATABASE=rbac;HOST=localhost;PASSWORD=Suvalue2016;USER ID=postgres");
-                //     s.UseNewtonsoftJsonSerializer();
-                // });
-                q.UseDefaultThreadPool(tp =>
-                {
-                    tp.MaxConcurrency = 10;
-                });		
+                tp.MaxConcurrency = 10;
             });
+        });
         services.AddQuartzServer(o =>
         {
             o.WaitForJobsToComplete = false;
@@ -198,6 +198,6 @@ public static class BaseServiceSetup
 
     public static void AddCustomHostedService(this IServiceCollection services)
     {
-        services.AddHostedService<BackgroundJobHostedService>();        
+        services.AddHostedService<BackgroundJobHostedService>();
     }
 }

@@ -16,7 +16,7 @@ public class BackgroundJobHostedService : IHostedService
     }
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        // await AddJobSchedulerAsync<TestJob>("0/5 * * * * ? ", "1512", nameof(TestJob), "测试数据");
+        await AddJobSchedulerAsync<TestJob>("0/5 * * * * ? ", "1512", nameof(TestJob), "测试数据");
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
