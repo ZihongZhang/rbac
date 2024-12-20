@@ -7,13 +7,13 @@ using SqlSugar;
 
 namespace rbac.CoreBusiness.Jobs;
 
-public class TestJob : IJob
+public class ClearHistoryJob : IJob
 {
     private readonly IConfiguration _configuration;
-    private readonly ILogger<TestJob> _logger;
+    private readonly ILogger<ClearHistoryJob> _logger;
     private readonly ISqlSugarClient _db;
 
-    public TestJob(IConfiguration configuration,ILogger<TestJob> logger,ISqlSugarClient db)
+    public ClearHistoryJob(IConfiguration configuration,ILogger<ClearHistoryJob> logger,ISqlSugarClient db)
     {
         _configuration = configuration;
         _logger = logger;
@@ -29,8 +29,8 @@ public class TestJob : IJob
         {
             _logger.LogInformation("日志文件夹不存在！");
         }
-        // 日志保留天数
-        int retentionDays = 3;
+        // 日志保留天数 LogFileMaintainTime
+        int retentionDays = _configuration.GetValue<int>("LogFileMaintainTime");
 
         // 获取日志文件
         string[] logFiles = Directory.GetFiles(logsFolderPath, "*.txt");
