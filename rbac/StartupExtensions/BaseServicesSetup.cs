@@ -89,6 +89,7 @@ public static class BaseServiceSetup
         {
             opt.Filters.Add<GlobalExceptionFilter>();
             opt.Filters.Add<GlobalResultFilter>();
+            opt.Filters.Add<ArgumentsFilter>();
         });
     }
 

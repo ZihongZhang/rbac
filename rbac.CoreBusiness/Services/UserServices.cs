@@ -62,28 +62,22 @@ public class UserServices : IScoped
     /// <exception cref="DomainException"></exception>
     public async Task<string> LoginAsync(LoginDto loginDto)
     {
-        _logger.LogInformation("登录信息：{@loginDto}", loginDto);
-
+        _logger.LogInformation("登录信息：{@loginDto}", loginDto);        
         if (string.IsNullOrEmpty(loginDto.Password?.Trim()))
         {
             throw new DomainException("密码不能为空!");
         }
-
         //var user = await _db.Queryable<User>().Where(a => a.Username == loginDto.UserName).FirstAsync()
         //    ?? throw new DomainException("不存在该用户");
         var user = await _db.Queryable<User>()
                             .Where(a => a.Username == loginDto.UserName)
                             .FirstAsync()
-               ?? throw new DomainException("不存在该用户");
-
-
+               ?? throw new DomainException("不存在该用户");               
         if (user.Status == StatusEnum.Disable) throw new DomainException("该用户已被禁用");
-
         if (!user.Password.Equals(loginDto.Password))
         {
             throw new DomainException("登录失败");
         }
-
         return GenerateToken(user);
     }
 

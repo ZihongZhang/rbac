@@ -2,6 +2,7 @@
 using rbac.Modals.Enum;
 using rbac.Modals.Models;
 using rbac.Modals.Models.AiRelatedModel;
+using Serilog;
 using SqlSugar;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -71,6 +72,8 @@ namespace rbac.StartupExtensions
             {
                 db.Aop.OnLogExecuting = (sql, parse) =>
                 {
+                    //打印sql
+                    Log.Information(UtilMethods.GetNativeSql(sql, parse));
                     //将原生日志打印到控制台中
                     Console.WriteLine(UtilMethods.GetNativeSql(sql, parse));
                 };
