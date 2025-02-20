@@ -5,7 +5,12 @@ namespace rbac.Infra.Helper;
 
 public static class ExcelHelper
 {
-
+    /// <summary>
+    /// 简单导出excel
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="dataList"></param>
+    /// <returns></returns>
     public static byte[]  SetSimpleExcel<T>(List<T> dataList) where T : class
     {
         ExcelPackage.LicenseContext = LicenseContext.NonCommercial; 
